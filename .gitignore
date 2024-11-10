@@ -1,0 +1,8 @@
+### JetBrains IDE ###
+**/.idea/
+
+### VS Code ###
+**/.vscode/
+
+### Mac ###
+.DS_Store
