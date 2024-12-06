@@ -1,0 +1,25 @@
+[versions]
+kotlin = "2.1.0"
+kotlinx-serialization = "1.7.3"
+kotlinx-coroutines = "1.9.0"
+
+mybatis-plus = "3.4.3"
+
+[libraries]
+kotlin-stdlib = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib", version.ref = "kotlin" }
+
+# crawler
+kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
+kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
+
+
+# database
+mybatis-plus = { group = "com.baomidou", name = "mybatis-plus", version.ref = "mybatis-plus" }
+
+
+[bundles]
+crawler = ["kotlin-stdlib", "kotlinx-serialization-json", "kotlinx-coroutines-core"]
+database = ["mybatis-plus"]
+
+[plugins]
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }

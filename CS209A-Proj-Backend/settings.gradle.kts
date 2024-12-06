@@ -3,7 +3,8 @@ rootProject.name = "CS209A-Proj-Backend"
 include(
     "common",
     "crawler",
-    "service"
+    "api",
+    "database",
 )
 
 
@@ -20,4 +21,3 @@ dependencyResolutionManagement {
         maven("https://plugins.gradle.org/m2/")
     }
 }
-
