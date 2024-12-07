@@ -7,6 +7,10 @@ import io.github.octcarp.sustech.cs209a.proj.crawler.model.ApiResponse
 import io.github.octcarp.sustech.cs209a.proj.crawler.model.CommentDTO
 import io.github.octcarp.sustech.cs209a.proj.crawler.model.QuestionDTO
 import io.github.octcarp.sustech.cs209a.proj.crawler.model.UserDTO
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.runBlocking
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.util.concurrent.TimeUnit
@@ -72,9 +76,9 @@ fun fetchQuestions(
 
 
 fun fetchAnswersByQuestions(questionIds: List<Int>): List<AnswerDTO> {
-    val answerDTOS = mutableListOf<AnswerDTO>()
+    suspend fun fetchAnswerChunk(chunk: List<Int>): List<AnswerDTO> {
+        val answerDTOList = mutableListOf<AnswerDTO>()
 
-    questionIds.chunked(100).forEach { chunk ->
         val ids = chunk.joinToString(";")
 
         val api = "${CrawlerConfig.BASE_URL}/questions/${ids}/answers"
@@ -88,7 +92,7 @@ fun fetchAnswersByQuestions(questionIds: List<Int>): List<AnswerDTO> {
             val response = getStringFromUrl(url)
             response?.let {
                 val answerPage = json.decodeFromString<ApiResponse<AnswerDTO>>(it)
-                answerDTOS.addAll(answerPage.items)
+                answerDTOList.addAll(answerPage.items)
 
                 hasMore = answerPage.hasMore
 
@@ -99,18 +103,29 @@ fun fetchAnswersByQuestions(questionIds: List<Int>): List<AnswerDTO> {
                 hasMore = false
             }
         }
+
+        return answerDTOList
     }
 
-    return answerDTOS
+    return runBlocking {
+        questionIds.chunked(100)
+            .map { chunk ->
+                async(Dispatchers.IO) {
+                    fetchAnswerChunk(chunk)
+                }
+            }
+            .awaitAll()
+            .flatten()
+    }
 }
 
 fun fetchCommentsByPostIds(
     postType: String,
     postIds: List<Int>
 ): List<CommentDTO> {
-    val commentDTOList = mutableListOf<CommentDTO>()
+    suspend fun fetchCommentChunk(chunk: List<Int>): List<CommentDTO> {
+        val commentDTOList = mutableListOf<CommentDTO>()
 
-    postIds.chunked(100).forEach { chunk ->
         val ids = chunk.joinToString(";")
 
         val api = "${CrawlerConfig.BASE_URL}/${postType}/${ids}/comments";
@@ -133,16 +148,27 @@ fun fetchCommentsByPostIds(
                 hasMore = false
             }
         }
+
+        return commentDTOList
     }
 
-    return commentDTOList
+    return runBlocking {
+        postIds.chunked(100)
+            .map { chunk ->
+                async(Dispatchers.IO) {
+                    fetchCommentChunk(chunk)
+                }
+            }
+            .awaitAll()
+            .flatten()
+    }
+
 }
 
 fun fetchUsersByIds(userIds: List<Int>): List<UserDTO> {
-    val userDTOList = mutableListOf<UserDTO>()
+    suspend fun fetchUserChunk(chunk: List<Int>): List<UserDTO> {
+        val userDTOList = mutableListOf<UserDTO>()
 
-
-    userIds.chunked(100).forEach { chunk ->
         val ids = chunk.joinToString(";")
 
         val api = "${CrawlerConfig.BASE_URL}/users/${ids}"
@@ -167,7 +193,17 @@ fun fetchUsersByIds(userIds: List<Int>): List<UserDTO> {
             }
         }
 
+        return userDTOList
     }
 
-    return userDTOList
+    return runBlocking {
+        userIds.chunked(100)
+            .map { chunk ->
+                async(Dispatchers.IO) {
+                    fetchUserChunk(chunk)
+                }
+            }
+            .awaitAll()
+            .flatten()
+    }
 }
