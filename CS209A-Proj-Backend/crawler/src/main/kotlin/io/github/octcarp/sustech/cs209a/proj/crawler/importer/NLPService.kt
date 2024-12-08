@@ -3,7 +3,7 @@ package io.github.octcarp.sustech.cs209a.proj.crawler.importer
 import edu.stanford.nlp.ling.CoreLabel
 import edu.stanford.nlp.pipeline.CoreDocument
 import edu.stanford.nlp.pipeline.StanfordCoreNLP
-import io.github.octcarp.sustech.cs209a.proj.crawler.model.QuestionDTO
+import io.github.octcarp.sustech.cs209a.proj.common.KeywordPreset
 import java.util.Properties
 
 object NLPService {
@@ -23,7 +23,6 @@ object NLPService {
         val document = CoreDocument(text)
         pipeline.annotate(document)
 
-
         return document.tokens().let { tokens ->
             if (filtration) {
                 tokens.filter {
@@ -37,29 +36,23 @@ object NLPService {
         }
     }
 
-    fun calculateBugFrequency(questionDTO: QuestionDTO): Double {
-        val titleTokens = processText(questionDTO.title)
-        val bodyTokens = processText(questionDTO.body)
-
-        val exceptionCount = bodyTokens.count { token ->
-            token.lemma().contains("exception", ignoreCase = true) ||
-                    token.originalText().contains("exception", ignoreCase = true)
-        }
-
-        val bugCount = bodyTokens.count { token ->
-            token.lemma().contains("bug", ignoreCase = true) ||
-                    token.originalText().contains("bug", ignoreCase = true)
-        }
-
-        return (exceptionCount + bugCount).toDouble() / bodyTokens.size
+    fun countBugs(tokens: List<CoreLabel>): Map<String, Int> {
+        return tokens
+            .map { it.word() }
+            .filter { word ->
+                (word.endsWith("Exception") && word.length > 9) ||
+                        (word.endsWith("Error") && word.length > 5)
+            }
+            .groupingBy { it }
+            .eachCount()
     }
 
     fun calculateTopicScores(
         titleTokens: List<CoreLabel>?,
         bodyTokens: List<CoreLabel>
-    ): String? {
+    ): String {
         val scores = topicMap.keys.associateWith { topic ->
-            val topicWords = topicMap[topic]?.plus(topic) ?: setOf(topic)
+            val topicWords = topicMap[topic] ?: setOf(topic)
 
             val bodyScore = calculateTokenScore(bodyTokens, topicWords)
             val titleScore = titleTokens?.let { calculateTokenScore(it, topicWords) } ?: bodyScore
@@ -68,9 +61,9 @@ object NLPService {
         }
 
 
-        val (bestTopic, bestScore) = scores.maxByOrNull { it.value } ?: return null
+        val (bestTopic, bestScore) = scores.maxByOrNull { it.value } ?: return "unknown"
 
-        return if (bestScore >= 0.3) bestTopic else null
+        return if (bestScore >= 0.3) bestTopic else "unknown"
     }
 
     private fun calculateTokenScore(
@@ -88,5 +81,20 @@ object NLPService {
         return matches.toDouble() / tokens.size
     }
 
-
+//    fun calculateBugFrequency(questionDTO: QuestionDTO): Double {
+//        val titleTokens = processText(questionDTO.title)
+//        val bodyTokens = processText(questionDTO.body)
+//
+//        val exceptionCount = bodyTokens.count { token ->
+//            token.lemma().contains("exception", ignoreCase = true) ||
+//                    token.originalText().contains("exception", ignoreCase = true)
+//        }
+//
+//        val bugCount = bodyTokens.count { token ->
+//            token.lemma().contains("bug", ignoreCase = true) ||
+//                    token.originalText().contains("bug", ignoreCase = true)
+//        }
+//
+//        return (exceptionCount + bugCount).toDouble() / bodyTokens.size
+//    }
 }

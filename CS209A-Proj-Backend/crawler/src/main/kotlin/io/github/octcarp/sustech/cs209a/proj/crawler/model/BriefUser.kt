@@ -4,5 +4,5 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class BriefUser(
-    val userId: Int? = null,
+    val userId: Long? = null,
 )

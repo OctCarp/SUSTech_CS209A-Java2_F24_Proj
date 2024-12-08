@@ -5,6 +5,7 @@ import io.github.octcarp.sustech.cs209a.proj.crawler.model.QuestionDTO
 import io.github.octcarp.sustech.cs209a.proj.crawler.fetcher.fetchAnswersByQuestions
 import io.github.octcarp.sustech.cs209a.proj.crawler.fetcher.fetchCommentsByPostIds
 import io.github.octcarp.sustech.cs209a.proj.crawler.fetcher.fetchQuestions
+import io.github.octcarp.sustech.cs209a.proj.crawler.fetcher.fetchQuestionsByIds
 import io.github.octcarp.sustech.cs209a.proj.crawler.fetcher.fetchUsersByIds
 import io.github.octcarp.sustech.cs209a.proj.crawler.model.AnswerDTO
 import io.github.octcarp.sustech.cs209a.proj.crawler.model.CommentDTO
@@ -25,11 +26,12 @@ fun main(args: Array<String>) {
 }
 
 object CrawlerMain {
-    const val QUES_NEW: Boolean = false
+    const val QUES_NEW: Boolean = true
+    const val QUES_REFRESH: Boolean = false
 
-    const val ANSWER_NEW: Boolean = false
+    const val ANSWER_NEW: Boolean = true
 
-    const val COMMENT_NEW: Boolean = false
+    const val COMMENT_NEW: Boolean = true
 
     const val USER_NEW: Boolean = true
 
@@ -37,37 +39,41 @@ object CrawlerMain {
     val saveDir = "./data/${LocalDateTime.now().format(DateTimeFormatter.ofPattern("MM-dd_HH-mm-ss"))}"
 
     fun execute() {
-        val questionDTOList = if (QUES_NEW) fetchNewQuestions() else loadQuestionJson()
+        val questionDTOList = if (QUES_NEW) saveNewQuestions() else loadQuestionJson()
 
-        val answerDTOList = if (ANSWER_NEW) {
-            val questionIds = questionDTOList.map { it.questionId }
-            fetchNewAnswers(questionIds)
+        val questionIds = questionDTOList.map { it.questionId }
+        if (QUES_REFRESH) {
+            saveRefreshQuestions(questionIds)
+        }
+
+        val answerDTOList = if (ANSWER_NEW || QUES_NEW) {
+            saveNewAnswers(questionIds)
         } else {
             loadAnswerJson()
         }
 
-        val commentDTOList = if (COMMENT_NEW) {
-            fetchNewComments(
-                questionIds = questionDTOList.map { it.questionId },
+        val commentDTOList = if (COMMENT_NEW || QUES_NEW) {
+            saveNewComments(
+                questionIds = questionIds,
                 answerIds = answerDTOList.map { it.answerId }
             )
         } else {
             loadCommentJson()
         }
 
-        val userDTOList = if (USER_NEW) {
+        val userDTOList = if (USER_NEW || QUES_NEW) {
             val userIds = (questionDTOList.mapNotNull { it.owner?.userId }
                     + answerDTOList.mapNotNull { it.owner?.userId }
                     + commentDTOList.mapNotNull { it.owner?.userId }).distinct()
-            fetchNewUsers(userIds)
+            saveNewUsers(userIds)
         } else {
             loadUserJson()
         }
     }
 
-    private fun fetchNewQuestions(): List<QuestionDTO> {
+    private fun saveNewQuestions(): List<QuestionDTO> {
         val questions: List<QuestionDTO> =
-            fetchQuestions(maxQuestions = 2000)
+            fetchQuestions(maxQuestions = 5000)
         saveToFile(
             "${saveDir}/question.json",
             json.encodeToString(questions)
@@ -76,7 +82,15 @@ object CrawlerMain {
         return questions
     }
 
-    private fun fetchNewAnswers(questionIds: List<Int>): List<AnswerDTO> {
+    private fun saveRefreshQuestions(questionIds: List<Long>) {
+        val questions = fetchQuestionsByIds(questionIds)
+        saveToFile(
+            "${saveDir}/question.json",
+            json.encodeToString(questions)
+        )
+    }
+
+    private fun saveNewAnswers(questionIds: List<Long>): List<AnswerDTO> {
         val answers = fetchAnswersByQuestions(questionIds)
         saveToFile(
             "${saveDir}/answer.json",
@@ -85,9 +99,9 @@ object CrawlerMain {
         return answers
     }
 
-    private fun fetchNewComments(
-        questionIds: List<Int>,
-        answerIds: List<Int>
+    private fun saveNewComments(
+        questionIds: List<Long>,
+        answerIds: List<Long>
     ): List<CommentDTO> {
         val questionComments = fetchCommentsByPostIds("questions", questionIds)
         val answerComments = fetchCommentsByPostIds("answers", answerIds)
@@ -100,7 +114,7 @@ object CrawlerMain {
         return comments
     }
 
-    private fun fetchNewUsers(userIds: List<Int>): List<UserDTO> {
+    private fun saveNewUsers(userIds: List<Long>): List<UserDTO> {
         val users = fetchUsersByIds(userIds)
         saveToFile(
             "${saveDir}/user.json",

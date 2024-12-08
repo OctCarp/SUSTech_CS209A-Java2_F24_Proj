@@ -1,0 +1,9 @@
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/your_database?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC
+    username: cs209a
+    password: cs209a
+  mybatis-plus:
+    configuration:
+      map-underscore-to-camel-case: true

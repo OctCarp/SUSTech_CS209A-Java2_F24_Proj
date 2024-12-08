@@ -1,6 +1,5 @@
 package io.github.octcarp.sustech.cs209a.proj.crawler.config
 
-import java.io.FileInputStream
 import java.util.Properties
 
 object CrawlerConfig {
@@ -10,6 +9,7 @@ object CrawlerConfig {
     val SITE: String
     val TAG: String
     val API_KEY: String
+    val FILTER: String
 
     val JSON_DIR: String
 
@@ -19,8 +19,9 @@ object CrawlerConfig {
             TAG = it.getProperty("tag", "java")
             SITE = it.getProperty("site", "stackoverflow")
             API_KEY = it.getProperty("api_key", "rl_QSEp4LTsXZLcivf3gjbjQJAe3")
-            JSON_DIR = it.getProperty("json_dir", "/data/final")
+            FILTER = it.getProperty("filter", "!*fH2K9ewS1UcdW(pqYr*DX.X(GHj0XUwszGHe")
 
+            JSON_DIR = it.getProperty("json_dir", "/data/final")
         }
     }
 

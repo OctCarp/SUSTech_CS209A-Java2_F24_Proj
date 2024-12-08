@@ -13,6 +13,7 @@ dependencies {
     implementation(libs.bundles.crawler)
 
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0")
+    implementation("com.google.guava:guava:33.3.1-jre")
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     implementation("edu.stanford.nlp:stanford-corenlp:4.5.7")
 
