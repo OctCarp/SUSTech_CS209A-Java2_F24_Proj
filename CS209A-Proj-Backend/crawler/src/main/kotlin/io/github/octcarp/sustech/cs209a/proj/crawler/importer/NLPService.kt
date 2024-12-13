@@ -48,22 +48,24 @@ object NLPService {
     }
 
     fun calculateTopicScores(
+        bodyTokens: List<CoreLabel>,
+        tagTokens: List<CoreLabel>?,
         titleTokens: List<CoreLabel>?,
-        bodyTokens: List<CoreLabel>
     ): String {
         val scores = topicMap.keys.associateWith { topic ->
             val topicWords = topicMap[topic] ?: setOf(topic)
 
             val bodyScore = calculateTokenScore(bodyTokens, topicWords)
             val titleScore = titleTokens?.let { calculateTokenScore(it, topicWords) } ?: bodyScore
+            val tagScore = tagTokens?.let { calculateTokenScore(it, topicWords) } ?: bodyScore
 
-            (titleScore * 2 + bodyScore) / 3.0
+            (tagScore * 10 + titleScore * 2 + bodyScore) / 13.0
         }
 
 
         val (bestTopic, bestScore) = scores.maxByOrNull { it.value } ?: return "unknown"
 
-        return if (bestScore >= 0.3) bestTopic else "unknown"
+        return if (bestScore >= 0.1) bestTopic else "unknown"
     }
 
     private fun calculateTokenScore(
@@ -73,8 +75,10 @@ object NLPService {
         val matches = tokens.count { token ->
 
             synonyms.any { synonym ->
-                token.lemma().contains(synonym, ignoreCase = true) ||
-                        token.originalText().contains(synonym, ignoreCase = true)
+                token.lemma().contains(synonym, ignoreCase = true)
+                        || token.originalText().contains(synonym, ignoreCase = true)
+//                        || synonym.contains(token.lemma(), ignoreCase = true)
+//                        || synonym.contains(token.originalText(), ignoreCase = true)
             }
         }
 

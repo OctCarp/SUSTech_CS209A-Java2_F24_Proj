@@ -6,7 +6,7 @@ import com.baomidou.mybatisplus.annotation.TableName
 @TableName("Tags")
 data class TagPO(
     @TableId
-    val tagId: Int,
+    val tagId: Int? = null,
 
     val tagName: String
 )

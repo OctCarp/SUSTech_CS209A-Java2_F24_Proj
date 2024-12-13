@@ -7,6 +7,7 @@ import io.github.octcarp.sustech.cs209a.proj.crawler.fetcher.fetchCommentsByPost
 import io.github.octcarp.sustech.cs209a.proj.crawler.fetcher.fetchQuestions
 import io.github.octcarp.sustech.cs209a.proj.crawler.fetcher.fetchQuestionsByIds
 import io.github.octcarp.sustech.cs209a.proj.crawler.fetcher.fetchUsersByIds
+import io.github.octcarp.sustech.cs209a.proj.crawler.fetcher.saveUsersResume
 import io.github.octcarp.sustech.cs209a.proj.crawler.model.AnswerDTO
 import io.github.octcarp.sustech.cs209a.proj.crawler.model.CommentDTO
 import io.github.octcarp.sustech.cs209a.proj.crawler.model.UserDTO
@@ -26,12 +27,12 @@ fun main(args: Array<String>) {
 }
 
 object CrawlerMain {
-    const val QUES_NEW: Boolean = true
+    const val QUES_NEW: Boolean = false
     const val QUES_REFRESH: Boolean = false
 
-    const val ANSWER_NEW: Boolean = true
+    const val ANSWER_NEW: Boolean = false
 
-    const val COMMENT_NEW: Boolean = true
+    const val COMMENT_NEW: Boolean = false
 
     const val USER_NEW: Boolean = true
 
@@ -40,8 +41,8 @@ object CrawlerMain {
 
     fun execute() {
         val questionDTOList = if (QUES_NEW) saveNewQuestions() else loadQuestionJson()
-
         val questionIds = questionDTOList.map { it.questionId }
+
         if (QUES_REFRESH) {
             saveRefreshQuestions(questionIds)
         }
@@ -73,7 +74,7 @@ object CrawlerMain {
 
     private fun saveNewQuestions(): List<QuestionDTO> {
         val questions: List<QuestionDTO> =
-            fetchQuestions(maxQuestions = 5000)
+            fetchQuestions(maxQuestions = 2000)
         saveToFile(
             "${saveDir}/question.json",
             json.encodeToString(questions)
@@ -115,11 +116,22 @@ object CrawlerMain {
     }
 
     private fun saveNewUsers(userIds: List<Long>): List<UserDTO> {
-        val users = fetchUsersByIds(userIds)
-        saveToFile(
-            "${saveDir}/user.json",
-            json.encodeToString(users)
-        )
+        var users: List<UserDTO>
+        try {
+            users = saveUsersResume(userIds)
+            saveToFile(
+                "${saveDir}/user.json",
+                json.encodeToString(users)
+            )
+        } catch (_: Exception) {
+            println("No users.json found, start from 0")
+            users = fetchUsersByIds(userIds, emptyList())
+            saveToFile(
+                "${saveDir}/user.json",
+                json.encodeToString(users)
+            )
+        }
+
         return users
     }
 }

@@ -4,6 +4,7 @@ include(
     "common",
     "crawler",
     "api",
+    "api-java",
     "database",
 )
 

@@ -1,15 +1,16 @@
--- CREATE user cs209a WITH PASSWORD 'cs209a';
+CREATE user cs209a WITH PASSWORD 'cs209a';
+ALTER USER cs209a WITH SUPERUSER;
 
 DROP TABLE IF EXISTS Users, Questions, Answers, Comments, Tags, Topics, Post_Topics, Bugs, Post_Bugs;
 
 CREATE TABLE Users
 (
-    user_id        BIGINT PRIMARY KEY,
-    display_name   TEXT      NOT NULL,
-    creation_date  TIMESTAMP NOT NULL,
+    user_id         BIGINT PRIMARY KEY,
+    display_name    TEXT      NOT NULL,
+    creation_date   TIMESTAMP NOT NULL,
 
-    reputation     INT       NOT NULL,
-    accept_rate    INT,
+    reputation      INT       NOT NULL,
+    accept_rate     INT,
     up_vote_count   INT       NOT NULL,
     down_vote_count INT       NOT NULL
 );
@@ -30,8 +31,8 @@ CREATE TABLE Questions
 
     score              INT       NOT NULL,
     view_count         INT       NOT NULL,
-    up_vote_count       INT       NOT NULL,
-    down_vote_count     INT       NOT NULL,
+    up_vote_count      INT       NOT NULL,
+    down_vote_count    INT       NOT NULL,
     favorite_count     INT       NOT NULL
 );
 
@@ -49,8 +50,8 @@ CREATE TABLE Answers
 
     is_accepted        BOOLEAN   NOT NULL,
     score              INT       NOT NULL,
-    up_vote_count       INT       NOT NULL,
-    down_vote_count     INT       NOT NULL
+    up_vote_count      INT       NOT NULL,
+    down_vote_count    INT       NOT NULL
 );
 
 CREATE TABLE Comments
@@ -65,25 +66,19 @@ CREATE TABLE Comments
     score         INT       NOT NULL
 );
 
-CREATE TABLE Tags
-(
-    tag_id   SERIAL PRIMARY KEY,
-    tag_name TEXT NOT NULL
-);
-
 CREATE TABLE Topics
 (
     topic_id   SERIAL PRIMARY KEY,
     topic_name TEXT NOT NULL,
-    frequency  INT DEFAULT 0
+    frequency  BIGINT DEFAULT 0
 );
 
 CREATE TABLE Post_Topics
 (
-    post_id   BIGINT NOT NULL,
-    post_type INT    NOT NULL, -- 'Question' or 'Answer'
-    topic_id  BIGINT REFERENCES Topics (topic_id),
-    PRIMARY KEY (post_id, topic_id)
+    post_topic_id BIGSERIAL PRIMARY KEY,
+    post_id       BIGINT NOT NULL,
+    post_type     INT    NOT NULL, -- 'Question' or 'Answer'
+    topic_id      BIGINT REFERENCES Topics (topic_id)
 );
 
 CREATE TABLE Bugs
@@ -98,11 +93,9 @@ CREATE TABLE Bugs
 
 CREATE TABLE Post_Bugs
 (
-    post_id   BIGINT NOT NULL,
-    post_type INT    NOT NULL, -- 'Question' or 'Answer'
-    bug_id    BIGINT NOT NULL REFERENCES Bugs (bug_id),
-    frequency INT DEFAULT 0,
-
-    PRIMARY KEY (post_id, bug_id)
+    post_bug_id BIGSERIAL PRIMARY KEY,
+    post_id     BIGINT NOT NULL,
+    post_type   INT    NOT NULL, -- 'Question' or 'Answer'
+    bug_id      BIGINT NOT NULL REFERENCES Bugs (bug_id),
+    frequency   BIGINT DEFAULT 0
 );
-

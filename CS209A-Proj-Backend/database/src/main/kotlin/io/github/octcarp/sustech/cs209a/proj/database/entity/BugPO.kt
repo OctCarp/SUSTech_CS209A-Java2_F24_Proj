@@ -8,12 +8,12 @@ import io.github.octcarp.sustech.cs209a.proj.database.enums.BugType
 @TableName("Bugs")
 data class BugPO(
     @TableId
-    val bugId: Long,
+    val bugId: Long? = null,
     val bugName: String,
 
     @TableField(value = "bug_type")
     val bugType: BugType,
-    val bugFrequency: Int = 0,
+    val bugFrequency: Long,
 
     val bugDesc: String?,
 )

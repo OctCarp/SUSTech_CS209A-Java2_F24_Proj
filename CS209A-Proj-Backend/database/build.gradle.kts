@@ -1,5 +1,9 @@
 plugins {
     kotlin("jvm")
+    kotlin("plugin.spring")
+
+    java
+    id("io.freefair.lombok")
 }
 
 group = "io.github.octcarp.sustech.cs209a.proj"

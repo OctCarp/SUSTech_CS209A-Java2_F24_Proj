@@ -1,10 +1,13 @@
 plugins {
     kotlin("jvm")
-    kotlin("plugin.serialization") version "2.0.20"
+    kotlin("plugin.spring")
+    kotlin("plugin.serialization")
 }
 
 group = "io.github.octcarp.sustech.cs209a.proj"
 version = "1.0-SNAPSHOT"
+
+val nlpVersion = "4.5.7"
 
 dependencies {
     implementation(project(":common"))
@@ -15,7 +18,10 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0")
     implementation("com.google.guava:guava:33.3.1-jre")
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
-    implementation("edu.stanford.nlp:stanford-corenlp:4.5.7")
+    implementation("edu.stanford.nlp:stanford-corenlp:$nlpVersion")
+    implementation("edu.stanford.nlp:stanford-corenlp:$nlpVersion:models")
+    implementation("edu.stanford.nlp:stanford-corenlp:$nlpVersion:models-english")
+    implementation("edu.stanford.nlp:stanford-parser:3.9.2")
 
     testImplementation(kotlin("test"))
 }

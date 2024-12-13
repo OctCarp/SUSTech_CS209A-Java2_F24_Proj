@@ -8,4 +8,8 @@ import org.springframework.stereotype.Service
 
 @Service
 class BugServiceImpl : ServiceImpl<BugMapper, BugPO>(), BugService {
+    override fun getBugByName(name: String): BugPO? {
+        val queryWrapper = lambdaQuery().eq(BugPO::bugName, name)
+        return baseMapper.selectOne(queryWrapper)
+    }
 }

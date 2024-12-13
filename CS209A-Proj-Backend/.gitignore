@@ -47,6 +47,7 @@ bin/
 
 ### log files ###
 *.log
+/logs
 
 ## temporary data
 /data

@@ -1,0 +1,11 @@
+spring:
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath*:schema.sql
+
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/cs209a_proj?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC
+    username: cs209a
+    password: cs209a

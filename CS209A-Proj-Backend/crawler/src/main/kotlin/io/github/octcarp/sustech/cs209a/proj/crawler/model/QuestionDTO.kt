@@ -9,6 +9,8 @@ data class QuestionDTO(
     val questionId: Long,
     val owner: BriefUser? = null,
 
+    val tags: List<String>,
+
     val title: String,
     val body: String,
 
@@ -22,7 +24,7 @@ data class QuestionDTO(
     val viewCount: Int,
     val upVoteCount: Int,
     val downVoteCount: Int,
-    val favoriteCount: Int
+    val favoriteCount: Int,
 )
 
 fun QuestionDTO.toPO(): QuestionPO {
@@ -35,10 +37,10 @@ fun QuestionDTO.toPO(): QuestionPO {
         lastActivityDate = lastActivityDate.toLocalDateTime(),
         lastEditDate = lastEditDate?.toLocalDateTime(),
         acceptedAnswerId = acceptedAnswerId,
-        score = score!!,
-        viewCount = viewCount!!,
-        upVoteCount = this@toPO.upVoteCount!!,
-        downVoteCount = this@toPO.downVoteCount!!,
-        favoriteCount = favoriteCount!!
+        score = score,
+        viewCount = viewCount,
+        upVoteCount = upVoteCount,
+        downVoteCount = downVoteCount,
+        favoriteCount = favoriteCount
     )
 }

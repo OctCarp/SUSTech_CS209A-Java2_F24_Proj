@@ -22,18 +22,19 @@ import io.github.octcarp.sustech.cs209a.proj.database.enums.PostType
 import io.github.octcarp.sustech.cs209a.proj.database.service.AnswerService
 import io.github.octcarp.sustech.cs209a.proj.database.service.BugService
 import io.github.octcarp.sustech.cs209a.proj.database.service.CommentService
+import io.github.octcarp.sustech.cs209a.proj.database.service.CommonSqlService
 import io.github.octcarp.sustech.cs209a.proj.database.service.PostBugService
 import io.github.octcarp.sustech.cs209a.proj.database.service.PostTopicService
 import io.github.octcarp.sustech.cs209a.proj.database.service.QuestionService
 import io.github.octcarp.sustech.cs209a.proj.database.service.TopicService
 import io.github.octcarp.sustech.cs209a.proj.database.service.UserService
-import jakarta.annotation.PostConstruct
-import org.springframework.jdbc.core.JdbcTemplate
+import org.mybatis.spring.annotation.MapperScan
 import org.springframework.stereotype.Service
 
 @Service
-class StaticDataImportService(
-    private val jdbcTemplate: JdbcTemplate,
+@MapperScan("io.github.octcarp.sustech.cs209a.proj.database.mapper")
+class DataImportService(
+    private val commonSqlService: CommonSqlService,
     private val topicService: TopicService,
     private val postTopicService: PostTopicService,
     private val bugService: BugService,
@@ -46,29 +47,31 @@ class StaticDataImportService(
 ) {
     private val topicIdMap = (KeywordPreset.topicMap.keys + "unknown")
         .mapIndexed { index, topic -> topic to index.toLong() }.toMap()
+    private val topicFreqCount = mutableMapOf<Long, Long>()
 
     private val bugIdMap = mutableMapOf<String, Long>()
+    val bugFreqCount = mutableMapOf<Long, Long>()
     private var bugMapId = 0L
 
-    @PostConstruct
     fun importStaticDataFromFile() {
-        jdbcTemplate.execute("SET session_replication_role = 'replica'")
+        commonSqlService.disableAllTriggers()
         try {
             beforeImport()
 
             val questions = loadQuestionJson()
             val answers = loadAnswerJson()
             val comments = loadCommentJson()
-            val users = loadUserJson()
 
             importQuestions(questions)
             importAnswers(answers)
             importComments(comments)
+
+            val users = loadUserJson()
             importUsers(users)
 
             afterImport()
         } finally {
-            jdbcTemplate.execute("SET session_replication_role = 'origin'")
+            commonSqlService.enableAllTriggers()
         }
     }
 
@@ -84,12 +87,22 @@ class StaticDataImportService(
     }
 
     private fun afterImport() {
+        topicIdMap.map { (topic, id) ->
+            TopicPO(
+                topicId = id,
+                topicName = topic,
+                frequency = topicFreqCount[id] ?: 0
+            )
+        }.let { topicPOs ->
+            topicService.updateBatchById(topicPOs)
+        }
+
         bugIdMap.map { (name, id) ->
             BugPO(
                 bugId = id,
                 bugName = name,
-                bugType = if (name.endsWith("Exception")) BugType.EXCEPTION else BugType.ERROR,
-                bugFrequency = 0,
+                bugType = if (name.endsWith("Error")) BugType.ERROR else BugType.ERROR,
+                bugFrequency = bugFreqCount[id] ?: 0,
                 bugDesc = null
             )
         }.let { bugPOs ->
@@ -105,11 +118,14 @@ class StaticDataImportService(
         questions.parallelStream().forEach { question ->
             questionPOs.add(question.toPO())
 
+            val tagToken = NLPService.processText(question.tags.joinToString(","))
             val titleToken = NLPService.processText(question.title)
             val bodyToken = NLPService.processText(question.body)
 
-            val topic = NLPService.calculateTopicScores(titleToken, bodyToken)
+            val topic = NLPService.calculateTopicScores(bodyToken, tagToken, titleToken)
+
             val topicId = topicIdMap[topic]!!
+            topicFreqCount[topicId] = topicFreqCount.getOrDefault(topicId, 0) + 1
 
             postTopicPOs.add(
                 PostTopicPO(
@@ -121,6 +137,8 @@ class StaticDataImportService(
 
             NLPService.countBugs(bodyToken).forEach { (name, count) ->
                 val bugId = bugIdMap.getOrPut(name) { ++bugMapId }
+                bugFreqCount[bugId] = bugFreqCount.getOrDefault(bugId, 0) + count * 3
+
                 postBugPOs.add(
                     PostBugPO(
                         postId = question.questionId,
@@ -137,7 +155,7 @@ class StaticDataImportService(
     }
 
     private fun importAnswers(answers: List<AnswerDTO>) {
-        answers.chunked(3000).forEach { chunk ->
+        answers.chunked(1000).forEach { chunk ->
             val answerPOs = mutableListOf<AnswerPO>()
             val postBugPOs = mutableListOf<PostBugPO>()
 
@@ -147,6 +165,8 @@ class StaticDataImportService(
 
                 NLPService.countBugs(bodyToken).forEach { (name, count) ->
                     val bugId = bugIdMap.getOrPut(name) { ++bugMapId }
+                    bugFreqCount[bugId] = bugFreqCount.getOrDefault(bugId, 0) + count * 2
+
                     postBugPOs.add(
                         PostBugPO(
                             postId = answer.answerId,
@@ -164,7 +184,7 @@ class StaticDataImportService(
     }
 
     private fun importComments(comments: List<CommentDTO>) {
-        comments.chunked(3000).forEach { chunk ->
+        comments.chunked(1000).forEach { chunk ->
             val commentPOs = mutableListOf<CommentPO>()
             val postBugPOs = mutableListOf<PostBugPO>()
 
@@ -174,6 +194,8 @@ class StaticDataImportService(
 
                 NLPService.countBugs(bodyToken).forEach { (name, count) ->
                     val bugId = bugIdMap.getOrPut(name) { ++bugMapId }
+                    bugFreqCount[bugId] = bugFreqCount.getOrDefault(bugId, 0) + count * 1
+
                     postBugPOs.add(
                         PostBugPO(
                             postId = comment.commentId,
@@ -191,7 +213,7 @@ class StaticDataImportService(
     }
 
     private fun importUsers(users: List<UserDTO>) {
-        users.chunked(5000).forEach { chunk ->
+        users.chunked(1000).forEach { chunk ->
             val userPOs = chunk.map { it.toPO() }
             userService.saveOrUpdateBatch(userPOs)
         }
@@ -201,10 +223,11 @@ class StaticDataImportService(
     private fun importQuestionsBak(questions: List<QuestionDTO>) {
         questions.forEach {
             questionService.saveOrUpdate(it.toPO())
+            val tagToken = NLPService.processText(it.tags.joinToString(","))
             val titleToken = NLPService.processText(it.title)
             val bodyToken = NLPService.processText(it.body)
 
-            val topic = NLPService.calculateTopicScores(titleToken, bodyToken)
+            val topic = NLPService.calculateTopicScores(bodyToken, tagToken, titleToken)
             val topicId = topicIdMap[topic]!!
 
             val bugCount: Map<String, Int> = NLPService.countBugs(bodyToken)

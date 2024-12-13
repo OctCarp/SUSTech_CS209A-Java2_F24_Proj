@@ -1,6 +1,9 @@
 plugins {
     java
     kotlin("jvm") version "2.1.0" apply false
+    kotlin("plugin.spring") version "2.1.0" apply false
+    kotlin("plugin.serialization") version "2.1.0" apply false
+    id("io.freefair.lombok") version "8.11" apply false
 }
 
 group = "io.github.octcarp.sustech.cs209a.proj"
@@ -11,5 +14,5 @@ ext {
 }
 
 dependencies {
-    implementation("org.jetbrains.kotlin:kotlin-stdlib")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib:2.1.0")
 }

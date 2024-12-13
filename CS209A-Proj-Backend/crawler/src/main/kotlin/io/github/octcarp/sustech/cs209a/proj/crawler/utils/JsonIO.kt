@@ -50,3 +50,8 @@ fun loadUserJson(): List<UserDTO> {
     return json.decodeFromString(userJson)
 }
 
+fun loadUserResumeJson(): List<UserDTO> {
+    val userResumeJson = loadFromFile("user_resume.json")
+    return json.decodeFromString(userResumeJson)
+}
+
