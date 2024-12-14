@@ -63,9 +63,9 @@ object NLPService {
         }
 
 
-        val (bestTopic, bestScore) = scores.maxByOrNull { it.value } ?: return "other"
+        val (bestTopic, bestScore) = scores.maxByOrNull { it.value } ?: return "others"
 
-        return if (bestScore >= 1e-2) bestTopic else "other"
+        return if (bestScore >= 1e-2) bestTopic else "others"
     }
 
     private fun calculateTokenScore(

@@ -45,7 +45,7 @@ class DataImportService(
     private val commentService: CommentService,
     private val userService: UserService,
 ) {
-    private val topicIdMap = (KeywordPreset.topicMap.keys + "other")
+    private val topicIdMap = (KeywordPreset.topicMap.keys + "others")
         .mapIndexed { index, topic -> topic to index.toLong() }.toMap()
     private val topicFreqCount = mutableMapOf<Long, Long>()
 
@@ -101,7 +101,7 @@ class DataImportService(
             BugPO(
                 bugId = id,
                 bugName = name,
-                bugType = if (name.endsWith("Error")) BugType.ERROR else BugType.ERROR,
+                bugType = if (name.endsWith("Error")) BugType.ERROR else BugType.EXCEPTION,
                 bugFrequency = bugFreqCount[id] ?: 0,
                 bugDesc = null
             )
@@ -115,7 +115,7 @@ class DataImportService(
         val postBugPOs = mutableListOf<PostBugPO>()
         val postTopicPOs = mutableListOf<PostTopicPO>()
 
-        questions.parallelStream().forEach { question ->
+        questions.forEach { question ->
             questionPOs.add(question.toPO())
 
             val tagToken = NLPService.processText(question.tags.joinToString(","))
@@ -150,7 +150,7 @@ class DataImportService(
             }
         }
         questionService.saveOrUpdateBatch(questionPOs)
-//        postBugService.batchSaveOrUpdate(postBugPOs)
+        postBugService.saveOrUpdateBatch(postBugPOs)
         postTopicService.saveOrUpdateBatch(postTopicPOs)
     }
 

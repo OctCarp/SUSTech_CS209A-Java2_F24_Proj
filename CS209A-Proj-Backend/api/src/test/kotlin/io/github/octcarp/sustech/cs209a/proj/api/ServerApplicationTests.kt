@@ -1,4 +1,4 @@
-package io.github.octcarp.sustech.cs209a.proj.service
+package io.github.octcarp.sustech.cs209a.proj.api
 
 import org.junit.jupiter.api.Test
 import org.springframework.boot.test.context.SpringBootTest

@@ -74,7 +74,7 @@ CREATE TABLE Post_Topics
 (
     post_topic_id BIGSERIAL PRIMARY KEY,
     post_id       BIGINT NOT NULL,
-    post_type     INT    NOT NULL, -- 'Question' or 'Answer'
+    post_type     INT    NOT NULL, -- 'Question'
     topic_id      BIGINT REFERENCES Topics (topic_id)
 );
 
@@ -82,7 +82,7 @@ CREATE TABLE Bugs
 (
     bug_id        SERIAL PRIMARY KEY,
     bug_name      TEXT NOT NULL,
-    bug_type      INT  NOT NULL, -- 'FatalError' or 'Exception'
+    bug_type      INT  NOT NULL, -- 'Error' or 'Exception'
     bug_frequency INT DEFAULT 0,
 
     bug_desc      TEXT
@@ -92,7 +92,7 @@ CREATE TABLE Post_Bugs
 (
     post_bug_id BIGSERIAL PRIMARY KEY,
     post_id     BIGINT NOT NULL,
-    post_type   INT    NOT NULL, -- 'Question' or 'Answer'
+    post_type   INT    NOT NULL, -- 'Question', 'Answer' or 'Comment'
     bug_id      BIGINT NOT NULL REFERENCES Bugs (bug_id),
     frequency   BIGINT DEFAULT 0
 );
