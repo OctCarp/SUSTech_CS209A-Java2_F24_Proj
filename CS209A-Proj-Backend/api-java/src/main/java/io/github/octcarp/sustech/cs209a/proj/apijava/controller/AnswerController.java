@@ -16,8 +16,10 @@ public class AnswerController {
     @Autowired
     private ApiAnswerService apiAnswerService;
 
-    @GetMapping("/{answerId}/quality")
-    public AnswerQualityVO getAnswerQualityById(@PathVariable Long answerId) {
+    @GetMapping("/{answer_id}/quality")
+    public AnswerQualityVO getAnswerQualityById(
+        @PathVariable("answer_id") Long answerId
+    ) {
         AnswerQualityVO answerQualityVO = apiAnswerService.getAnswerQualityById(answerId);
         if (answerQualityVO == null) {
             throw new ResourceNotFoundException("Answer not found");

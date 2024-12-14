@@ -19,33 +19,30 @@ public class TopicController {
 
     @GetMapping("/getByName")
     public TopicPO getTopicByName(
-        @RequestParam String topicName
+        @RequestParam("topic_name") String topicName
     ) {
         return apiTopicService.getTopicByName(topicName);
     }
 
     @GetMapping("/statistics")
     public TopicStatisticsVO getTopicStatistics(
-        @RequestParam String topicName
+        @RequestParam("topic_name") String topicName
     ) {
         return apiTopicService.getTopicStatisticsByName(topicName);
     }
 
     @GetMapping("/top/engagement")
     public List<TopicEngagementVO> getTopEngagementTopics(
-        @RequestParam Integer limit,
-        @RequestParam(required = false) Integer minReputation
+        @RequestParam(required = false, defaultValue = "10") Integer limit,
+        @RequestParam(name = "min_reputation", required = false, defaultValue = "0") Integer minReputation
     ) {
         return null;
     }
 
     @GetMapping("/top/frequency")
     public List<TopicPO> getTopFrequencyTopics(
-        @RequestParam Integer limit
+        @RequestParam(required = false, defaultValue = "10") Integer limit
     ) {
-        if (limit == null) {
-            limit = 10;
-        }
         if (limit <= 0) {
             throw new BadRequestException("Invalid limit");
         }

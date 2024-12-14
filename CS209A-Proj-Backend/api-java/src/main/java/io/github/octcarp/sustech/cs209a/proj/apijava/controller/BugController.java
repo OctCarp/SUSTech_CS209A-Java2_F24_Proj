@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/bugs")
+@RequestMapping("/bugs")
 public class BugController {
 
     @Autowired
@@ -19,14 +19,14 @@ public class BugController {
 
     @GetMapping("/getByName")
     public BugPO getBugByName(
-        @RequestParam String bugName
+        @RequestParam("bug_name") String bugName
     ) {
         return apiBugService.getBugByName(bugName);
     }
 
     @GetMapping("/statistics")
     public BugStatisticsVO getBugStatistics(
-        @RequestParam String bugName
+        @RequestParam("bug_name") String bugName
     ) {
         BugStatisticsVO bugStatisticsVO = apiBugService.getBugStatisticsByName(bugName);
         if (bugStatisticsVO == null) {
@@ -37,7 +37,7 @@ public class BugController {
 
     @GetMapping("/top-frequency")
     public List<BugPO> getTopFrequencyBugs(
-        @RequestParam Integer limit
+        @RequestParam(required = false, defaultValue = "10") Integer limit
     ) {
         if (limit == null) {
             limit = 10;
