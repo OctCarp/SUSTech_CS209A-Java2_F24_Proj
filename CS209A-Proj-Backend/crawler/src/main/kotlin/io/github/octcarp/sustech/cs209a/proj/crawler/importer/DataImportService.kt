@@ -45,7 +45,7 @@ class DataImportService(
     private val commentService: CommentService,
     private val userService: UserService,
 ) {
-    private val topicIdMap = (KeywordPreset.topicMap.keys + "unknown")
+    private val topicIdMap = (KeywordPreset.topicMap.keys + "other")
         .mapIndexed { index, topic -> topic to index.toLong() }.toMap()
     private val topicFreqCount = mutableMapOf<Long, Long>()
 

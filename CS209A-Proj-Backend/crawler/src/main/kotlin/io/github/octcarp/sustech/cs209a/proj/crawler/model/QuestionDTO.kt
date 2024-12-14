@@ -1,6 +1,6 @@
 package io.github.octcarp.sustech.cs209a.proj.crawler.model
 
-import io.github.octcarp.sustech.cs209a.proj.crawler.utils.toLocalDateTime
+import io.github.octcarp.sustech.cs209a.proj.crawler.utils.secondToLocalDateTime
 import io.github.octcarp.sustech.cs209a.proj.database.entity.QuestionPO
 import kotlinx.serialization.Serializable
 
@@ -33,9 +33,9 @@ fun QuestionDTO.toPO(): QuestionPO {
         ownerId = owner?.userId,
         title = title,
         body = body,
-        creationDate = creationDate.toLocalDateTime(),
-        lastActivityDate = lastActivityDate.toLocalDateTime(),
-        lastEditDate = lastEditDate?.toLocalDateTime(),
+        creationDate = creationDate.secondToLocalDateTime(),
+        lastActivityDate = lastActivityDate.secondToLocalDateTime(),
+        lastEditDate = lastEditDate?.secondToLocalDateTime(),
         acceptedAnswerId = acceptedAnswerId,
         score = score,
         viewCount = viewCount,

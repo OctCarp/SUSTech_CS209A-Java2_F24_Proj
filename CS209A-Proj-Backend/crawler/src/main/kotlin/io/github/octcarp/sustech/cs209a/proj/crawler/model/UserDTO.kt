@@ -1,6 +1,6 @@
 package io.github.octcarp.sustech.cs209a.proj.crawler.model
 
-import io.github.octcarp.sustech.cs209a.proj.crawler.utils.toLocalDateTime
+import io.github.octcarp.sustech.cs209a.proj.crawler.utils.secondToLocalDateTime
 import io.github.octcarp.sustech.cs209a.proj.database.entity.UserPO
 import kotlinx.serialization.Serializable
 
@@ -32,7 +32,7 @@ fun UserDTO.toPO(): UserPO {
     return UserPO(
         userId = userId,
         displayName = displayName,
-        creationDate = creationDate.toLocalDateTime(),
+        creationDate = creationDate.secondToLocalDateTime(),
         reputation = reputation,
         acceptRate = acceptRate,
         upVoteCount = this@toPO.upVoteCount,

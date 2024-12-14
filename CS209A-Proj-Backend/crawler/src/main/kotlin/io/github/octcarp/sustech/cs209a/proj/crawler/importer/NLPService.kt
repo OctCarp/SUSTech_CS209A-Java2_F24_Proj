@@ -63,9 +63,9 @@ object NLPService {
         }
 
 
-        val (bestTopic, bestScore) = scores.maxByOrNull { it.value } ?: return "unknown"
+        val (bestTopic, bestScore) = scores.maxByOrNull { it.value } ?: return "other"
 
-        return if (bestScore >= 0.1) bestTopic else "unknown"
+        return if (bestScore >= 1e-2) bestTopic else "other"
     }
 
     private fun calculateTokenScore(
@@ -85,6 +85,7 @@ object NLPService {
         return matches.toDouble() / tokens.size
     }
 
+//    @Deprecated("Do not use this method, count bug directly")
 //    fun calculateBugFrequency(questionDTO: QuestionDTO): Double {
 //        val titleTokens = processText(questionDTO.title)
 //        val bodyTokens = processText(questionDTO.body)

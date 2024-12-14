@@ -1,9 +1,8 @@
 package io.github.octcarp.sustech.cs209a.proj.crawler.model
 
-import io.github.octcarp.sustech.cs209a.proj.crawler.utils.toLocalDateTime
+import io.github.octcarp.sustech.cs209a.proj.crawler.utils.secondToLocalDateTime
 import io.github.octcarp.sustech.cs209a.proj.database.entity.CommentPO
 import kotlinx.serialization.Serializable
-import java.time.LocalDateTime
 
 @Serializable
 data class CommentDTO(
@@ -24,7 +23,7 @@ fun CommentDTO.toPO(): CommentPO {
         postId = postId,
         ownerId = owner?.userId,
         body = body,
-        creationDate = creationDate.toLocalDateTime(),
+        creationDate = creationDate.secondToLocalDateTime(),
         score = score,
     )
 }

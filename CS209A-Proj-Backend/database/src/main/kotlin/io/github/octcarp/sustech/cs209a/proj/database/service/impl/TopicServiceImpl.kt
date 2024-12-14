@@ -12,7 +12,7 @@ import javax.management.Query.eq
 @Service
 class TopicServiceImpl : ServiceImpl<TopicMapper, TopicPO>(), TopicService {
     override fun getTopicByName(name: String): TopicPO? {
-        val queryWrapper = lambdaQuery().eq(TopicPO::topicName, name)
+        val queryWrapper = KtQueryWrapper(TopicPO::class.java).eq(TopicPO::topicName, name)
         return baseMapper.selectOne(queryWrapper)
     }
 }

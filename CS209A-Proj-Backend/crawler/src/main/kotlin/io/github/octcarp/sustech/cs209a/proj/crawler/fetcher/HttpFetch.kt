@@ -45,7 +45,7 @@ var lastBackOffCount = 1
 val json = JsonType.json
 
 val commonParams =
-    "site=${CrawlerConfig.SITE}&key=${CrawlerConfig.API_KEY}&filter=${CrawlerConfig.FILTER}"
+    "site=${CrawlerConfig.SITE}&filter=${CrawlerConfig.FILTER}&key=${CrawlerConfig.API_KEY}"
 
 private fun getStringFromUrl(url: String): String? {
     val request = Request.Builder().url(url).build()
@@ -305,7 +305,7 @@ fun fetchUsersByIds(userIds: List<Long>, alreadyUser: List<UserDTO>): List<UserD
 
     val allUsers = alreadyUser.toMutableList()
     val alreadyUserIds = allUsers.map { it.userId }
-    val newIds = userIds.filter { it !in alreadyUserIds }
+    val newIds = userIds.filter { it !in alreadyUserIds }.filter { it > 0 }
 
     if (USE_COROUTINE) {
         return runBlocking {
