@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <h1>常见 Java 话题</h1>
+  <div class="top-topics">
+    <h1>Top-{{ numTopics }} 热门用户参与 Topic</h1>
 
     <!-- 用户选择显示的最常见话题个数 -->
     <div class="select-container">
@@ -13,51 +13,45 @@
           variant="outlined"
           class="custom-select"
       />
+
+      <!-- 查询按钮，点击查询才更新数据 -->
+      <v-btn @click="fetchData" :disabled="!numTopics" size="large" color="primary" class="query-button">
+        <v-icon icon="mdi-magnify"></v-icon>
+        查询
+      </v-btn>
     </div>
 
-    <!-- 父容器，使用 Flexbox 布局 -->
-    <div class="chart-container">
+    <!-- 父容器，使用 Flexbox 布局，只有在 numTopics 有值时才显示 -->
+    <div v-if="shouldUpdate" class="chart-container">
       <!-- 使用 BarChart 组件，并传入自定义配置 -->
       <div class="chart-item">
         <BarChart
             :chartTitle="chartTitle"
             :xAxisLabel="xAxisLabel"
             :yAxisLabel="yAxisLabel"
-            :chartData="filteredChartData"
+            :chartData="data"
         />
       </div>
+    </div>
 
-      <!-- 使用 PieChart 组件，并传入自定义配置 -->
-<!--      <div class="chart-item">-->
-<!--        <PieChart-->
-<!--            :chartTitle="chartTitle"-->
-<!--            :chartData="filteredChartData"-->
-<!--        />-->
-<!--      </div>-->
-
-      <!-- 使用 LineChart 组件，并传入自定义配置 -->
-<!--      <div class="chart-item">-->
-<!--        <LineChart-->
-<!--            :chartTitle="chartTitle"-->
-<!--            :xAxisLabel="xAxisLabel"-->
-<!--            :yAxisLabel="yAxisLabel"-->
-<!--            :chartData="filteredChartData"-->
-<!--        />-->
-<!--      </div>-->
+    <!-- 收起按钮，只有在 numTopics 有值时才显示 -->
+    <div v-if="shouldUpdate" class="toggle-button-container">
+      <v-btn @click="collapse" variant="text">
+        <v-icon left>mdi-chevron-up</v-icon>  <!-- 收起图标 -->
+        收起
+      </v-btn>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
-import BarChart from './Chart/BarChart.vue';
-import LineChart from './Chart/LineChart.vue';
-import PieChart from './Chart/PieChart.vue';
+import { ref, computed, watch } from 'vue';
+import BarChart from '../Chart/BarChart.vue';
 
 // 自定义图表标题和轴标签
-const chartTitle = ref('常见 Java 话题频率');
+const chartTitle = ref('热门用户参与话题');
 const xAxisLabel = ref('话题');
-const yAxisLabel = ref('频率');
+const yAxisLabel = ref('用户参与值');
 
 // 图表数据
 const chartData = ref([
@@ -73,8 +67,10 @@ const chartData = ref([
   { name: 'Git 和版本控制', value: 3 },
 ]);
 
-// 用户选择显示的最常见话题个数，默认为 10
-const numTopics = ref(10);
+let data = ref([]);
+
+// 用户选择显示的最常见话题个数，默认为 空字符串
+const numTopics = ref("");
 
 // 下拉框选项（确保值为数字）
 const options = [
@@ -84,18 +80,39 @@ const options = [
   { value: 20, label: '20个' },
 ];
 
-// 根据选择的个数过滤和排序数据
+// 计算过滤后的数据（根据用户选择的数量进行过滤）
 const filteredChartData = computed(() => {
+  if (!numTopics.value) return []; // 如果 numTopics 为空，返回空数组
+
   // 排序数据：按频率从高到低
   const sortedData = [...chartData.value].sort((a, b) => b.value - a.value);
 
   // 根据用户选择的数量截取数据
   return sortedData.slice(0, numTopics.value);
 });
+
+// 控制数据更新的标志
+const shouldUpdate = ref(false);
+
+// 查询按钮的点击事件，显示数据
+const fetchData = () => {
+  shouldUpdate.value = true;
+  data.value = filteredChartData.value; // 使用 data.value 更新
+};
+
+// 收起按钮的点击事件，恢复默认值并隐藏图表
+const collapse = () => {
+  numTopics.value = "";
+  shouldUpdate.value = false;
+};
 </script>
 
 <style scoped>
-/* 样式美化 */
+.top-topics {
+  position: relative;
+  padding: 20px;
+}
+
 h1 {
   text-align: center;
   margin-bottom: 20px;
@@ -107,9 +124,17 @@ h1 {
   margin-bottom: 20px;
 }
 
-.custom-select {
-  width: 240px; /* 设置选择框宽度 */
-  font-size: 16px;
+.query-button {
+  margin-top: 5px;
+  margin-left: 20px;
+}
+
+/* 收起按钮容器放置在父容器的右下角 */
+.toggle-button-container {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  z-index: 10;
 }
 
 .chart-container {
@@ -119,10 +144,10 @@ h1 {
 }
 
 .chart-item {
-  flex: 1; /* 每个图表组件占据 1/3 的空间 */
-  max-width: 33%; /* 限制最大宽度为 33% */
-  min-width: 400px; /* 最小宽度保证图表不太小 */
-  height: 400px; /* 设置图表的固定高度 */
+  flex: 1;
+  max-width: 33%;
+  min-width: 400px;
+  height: 400px;
   box-sizing: border-box;
 }
 

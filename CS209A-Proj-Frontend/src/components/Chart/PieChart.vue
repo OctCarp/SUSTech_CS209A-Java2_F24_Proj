@@ -33,7 +33,7 @@ const initChart = () => {
         },
         tooltip: {
           trigger: 'item',
-          formatter: '{a} <br/>{b} : {c} ({d}%)',
+          formatter: '{a} <br/>{b} : {c} ({d}%)', // 格式化提示框内容
         },
         series: [
           {
@@ -46,7 +46,8 @@ const initChart = () => {
             })),
             label: {
               normal: {
-                formatter: '{b}', // 格式化标签内容
+                // 格式化标签内容：显示名称、数值和百分比
+                formatter: '{b}: {c} ({d}%)',  // 显示扇区名称、值、百分比
                 fontSize: 12,  // 标签字体大小
               }
             },
@@ -98,5 +99,5 @@ window.addEventListener('resize', () => {
 </script>
 
 <style scoped>
-
+/* 可根据需要为图表容器添加样式 */
 </style>
