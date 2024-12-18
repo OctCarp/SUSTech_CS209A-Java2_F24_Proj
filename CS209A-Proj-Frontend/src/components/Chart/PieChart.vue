@@ -1,5 +1,5 @@
 <template>
-  <div ref="chartRef" style="width: 100%; height: 400px;"></div>
+  <div ref="chartRef" style="width: 100%; height: 300px;"></div>
 </template>
 
 <script setup>
@@ -8,10 +8,6 @@ import * as echarts from 'echarts';
 
 // 定义传入的 props
 const props = defineProps({
-  chartTitle: {
-    type: String,
-    required: true,
-  },
   chartData: {
     type: Array,
     required: true,
@@ -27,19 +23,15 @@ const initChart = () => {
       chartInstance = echarts.init(chartRef.value);
 
       const options = {
-        title: {
-          text: props.chartTitle, // 使用自定义的图表标题
-          left: 'center',
-        },
         tooltip: {
           trigger: 'item',
           formatter: '{a} <br/>{b} : {c} ({d}%)', // 格式化提示框内容
         },
         series: [
           {
-            name: props.chartTitle,
             type: 'pie',  // 使用 pie 类型
             radius: '50%',
+            center: ['50%', '40%'], // 将饼图居中
             data: props.chartData.map((item) => ({
               value: item.value,
               name: item.name,

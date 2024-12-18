@@ -10,10 +10,6 @@ import * as echarts from 'echarts';
 
 // 定义传入的 props
 const props = defineProps({
-  chartTitle: {
-    type: String,
-    required: true,
-  },
   xAxisLabel: {
     type: String,
     required: true,
@@ -37,10 +33,6 @@ const initChart = () => {
       chartInstance = echarts.init(chartRef.value);
 
       const options = {
-        title: {
-          text: props.chartTitle, // 使用自定义的图表标题
-          left: 'center', // 图表标题居中
-        },
         tooltip: {
           trigger: 'axis',
         },

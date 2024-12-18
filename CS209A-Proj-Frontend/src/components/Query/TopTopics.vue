@@ -1,10 +1,8 @@
 <template>
   <div class="top-topics">
-    <h1>Top-{{ numTopics }} 高频 Topic</h1>
+    <h1>高频话题</h1>
 
-    <!-- 用户选择显示的最常见话题个数 -->
     <div class="select-container">
-      <!-- 日期选择表单 -->
       <v-text-field
           v-model="startDateText"
           label="开始日期"
@@ -25,7 +23,6 @@
           class="date-picker"
       ></v-text-field>
 
-      <!-- 用户选择话题个数 -->
       <v-select
           v-model="numTopics"
           :items="options"
@@ -36,19 +33,19 @@
           class="topic-select"
       />
 
-      <!-- 查询按钮，点击查询才更新数据 -->
       <v-btn @click="fetchData" :disabled="!numTopics" size="large" color="primary" class="query-button">
         <v-icon icon="mdi-magnify"></v-icon>
         查询
       </v-btn>
     </div>
 
-    <!-- 父容器，使用 Flexbox 布局，只有在 numTopics 有值时才显示 -->
     <div v-if="shouldUpdate" class="chart-container">
       <!-- 使用 BarChart 组件，并传入自定义配置 -->
       <div class="chart-item">
+        <div class="chart-title-container">
+          <h2>{{ chartTitle }}</h2>
+        </div>
         <BarChart
-            :chartTitle="chartTitle"
             :xAxisLabel="xAxisLabel"
             :yAxisLabel="yAxisLabel"
             :chartData="data"
@@ -58,17 +55,15 @@
 
     <div v-if="shouldUpdate" class="toggle-button-container">
       <v-btn @click="collapse" variant="text">
-        <v-icon left>mdi-chevron-up</v-icon>  <!-- 收起图标 -->
+        <v-icon left>mdi-chevron-up</v-icon>
         收起
       </v-btn>
     </div>
 
-    <!-- 日期选择对话框，选择开始日期 -->
     <v-dialog v-model="startDateDialog" max-width="290px">
       <v-date-picker v-model="startDate" @input="startDateDialog = false" :max="endDate" color="primary"></v-date-picker>
     </v-dialog>
 
-    <!-- 日期选择对话框，选择结束日期 -->
     <v-dialog v-model="endDateDialog" max-width="290px">
       <v-date-picker v-model="endDate" @input="endDateDialog = false" :min="startDate" color="primary"></v-date-picker>
     </v-dialog>
@@ -81,11 +76,22 @@ import {computed, ref, watch} from 'vue';
 import BarChart from '../Chart/BarChart.vue';
 import {fetchTopTopicData} from "@/services/api.js";
 
+let shouldUpdate = ref(false);
+const numTopics = ref('');
+
+const startDate = ref(null);
+const endDate = ref(null);
+const startDateText = ref('');
+const endDateText = ref('');
+const startDateDialog = ref(false);
+const endDateDialog = ref(false);
+
 // 自定义图表标题和轴标签
-const chartTitle = ref('高频 Topic');
-const xAxisLabel = ref('Topic');
+const chartTitle = ref(`最高频的${numTopics.value}个话题`);
+const xAxisLabel = ref('话题');
 const yAxisLabel = ref('频率');
 
+let data = ref([]);
 const chartData = ref([
   { name: '面向对象编程', value: 25, date: '2024-01-01' },
   { name: 'Spring 框架', value: 20, date: '2024-02-01' },
@@ -99,30 +105,12 @@ const chartData = ref([
   { name: 'Git 和版本控制', value: 3, date: '2024-10-01' },
 ]);
 
-let data = ref([]);
-let shouldUpdate = ref(false);
-const numTopics = ref('');
-const startDate = ref(null);
-const endDate = ref(null);
-const startDateText = ref('');
-const endDateText = ref('');
-const startDateDialog = ref(false);
-const endDateDialog = ref(false);
-
 const options = [
   { value: 5, label: '5个' },
   { value: 10, label: '10个' },
   { value: 15, label: '15个' },
   { value: 20, label: '20个' },
 ];
-
-// 更新选择日期的文本显示
-watch(startDate, (newDate) => {
-  startDateText.value = newDate ? newDate.toLocaleDateString() : '';
-});
-watch(endDate, (newDate) => {
-  endDateText.value = newDate ? newDate.toLocaleDateString() : '';
-});
 
 // 根据选择的日期范围和话题数量进行过滤
 const filteredChartData = computed(() => {
@@ -139,6 +127,7 @@ const filteredChartData = computed(() => {
 const fetchData = async () => {
   shouldUpdate.value = true;
   data.value = filteredChartData.value;
+  chartTitle.value = `最高频的${numTopics.value}个话题`;
 
   // try {
   //   const response = await fetchTopTopicData(numTopics.value, startDate.value, endDate.value);
@@ -156,6 +145,14 @@ const collapse = () => {
   shouldUpdate.value = false;
   data.value = [];
 };
+
+// 更新选择日期的文本显示
+watch(startDate, (newDate) => {
+  startDateText.value = newDate ? newDate.toLocaleDateString() : '';
+});
+watch(endDate, (newDate) => {
+  endDateText.value = newDate ? newDate.toLocaleDateString() : '';
+});
 </script>
 
 <style scoped>
@@ -196,19 +193,23 @@ h1 {
   z-index: 10;
 }
 
-/* 图表部分样式 */
 .chart-container {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   gap: 20px;
 }
 
 .chart-item {
   flex: 1;
-  max-width: 33%;
+  max-width: 60%;
   min-width: 400px;
   height: 400px;
   box-sizing: border-box;
+}
+
+.chart-title-container {
+  display: flex;
+  justify-content: center;
 }
 
 @media (max-width: 1200px) {
