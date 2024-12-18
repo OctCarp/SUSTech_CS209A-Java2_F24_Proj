@@ -1,10 +1,8 @@
 <template>
   <div class="top-errors">
-    <h1>Top-{{ numBugs }} 高频 Error/Exception</h1>
+    <h1>高频故障</h1>
 
-    <!-- 用户选择显示的最常见错误个数 -->
     <div class="select-container">
-      <!-- 日期选择表单 -->
       <v-text-field
           v-model="startDateText"
           label="开始日期"
@@ -25,7 +23,6 @@
           class="date-picker"
       ></v-text-field>
 
-      <!-- 用户选择错误个数 -->
       <v-select
           v-model="numBugs"
           :items="options"
@@ -36,7 +33,6 @@
           class="topic-select"
       />
 
-      <!-- 查询按钮，点击查询才更新数据 -->
       <v-btn @click="fetchData" :disabled="!numBugs" size="large" color="primary" class="query-button">
         <v-icon left>mdi-magnify</v-icon>
         查询
@@ -46,8 +42,10 @@
     <div v-if="shouldUpdate" class="chart-container">
       <!-- 使用 BarChart 组件，并传入自定义配置 -->
       <div class="chart-item">
+        <div class="chart-title-container">
+          <h2>{{ chartTitle }}</h2>
+        </div>
         <BarChart
-            :chartTitle="chartTitle"
             :xAxisLabel="xAxisLabel"
             :yAxisLabel="yAxisLabel"
             :chartData="data"
@@ -55,20 +53,17 @@
       </div>
     </div>
 
-    <!-- 收起按钮，只有在 numBugs 有值时才显示 -->
     <div v-if="shouldUpdate" class="toggle-button-container">
       <v-btn @click="collapse" variant="text">
-        <v-icon left>mdi-chevron-up</v-icon>  <!-- 收起图标 -->
+        <v-icon left>mdi-chevron-up</v-icon>
         收起
       </v-btn>
     </div>
 
-    <!-- 日期选择对话框，选择开始日期 -->
     <v-dialog v-model="startDateDialog" max-width="290px">
       <v-date-picker v-model="startDate" @input="startDateDialog = false" :max="endDate" color="primary"></v-date-picker>
     </v-dialog>
 
-    <!-- 日期选择对话框，选择结束日期 -->
     <v-dialog v-model="endDateDialog" max-width="290px">
       <v-date-picker v-model="endDate" @input="endDateDialog = false" :min="startDate" color="primary"></v-date-picker>
     </v-dialog>
@@ -81,12 +76,22 @@ import { ref, computed, watch } from 'vue';
 import BarChart from "@/components/Chart/BarChart.vue";
 import {fetchTopBugData} from "@/services/api.js";
 
+let shouldUpdate = ref(false);
+const numBugs = ref('');
+
+const startDate = ref(null);
+const endDate = ref(null);
+const startDateText = ref('');
+const endDateText = ref('');
+const startDateDialog = ref(false);
+const endDateDialog = ref(false);
+
 // 自定义图表标题和轴标签
-const chartTitle = ref('高频 Error/Exception');
-const xAxisLabel = ref('错误类型');
+const chartTitle = ref(`最高频的${numBugs.value}个故障`);
+const xAxisLabel = ref('故障');
 const yAxisLabel = ref('频率');
 
-// 错误数据（假设数据带有日期字段）
+let data = ref([]);
 const chartData = ref([
   { name: 'NullPointerException', value: 25, date: '2024-01-01' },
   { name: 'ArrayIndexOutOfBoundsException', value: 20, date: '2024-02-01' },
@@ -100,31 +105,12 @@ const chartData = ref([
   { name: 'NumberFormatException', value: 3, date: '2024-10-01' },
 ]);
 
-let data = ref([]);
-let shouldUpdate = ref(false);
-const numBugs = ref('');
-const startDate = ref(null);
-const endDate = ref(null);
-const startDateText = ref('');
-const endDateText = ref('');
-const startDateDialog = ref(false);
-const endDateDialog = ref(false);
-
-// 下拉框选项（确保值为数字）
 const options = [
   { value: 5, label: '5个' },
   { value: 10, label: '10个' },
   { value: 15, label: '15个' },
   { value: 20, label: '20个' },
 ];
-
-// 更新选择日期的文本显示
-watch(startDate, (newDate) => {
-  startDateText.value = newDate ? newDate.toLocaleDateString() : '';
-});
-watch(endDate, (newDate) => {
-  endDateText.value = newDate ? newDate.toLocaleDateString() : '';
-});
 
 // 根据选择的日期范围和错误数量进行过滤
 const filteredChartData = computed(() => {
@@ -140,7 +126,8 @@ const filteredChartData = computed(() => {
 // 查询按钮的点击事件，显示数据
 const fetchData = async () => {
   shouldUpdate.value = true;
-  data.value = filteredChartData.value; // 使用过滤后的数据
+  data.value = filteredChartData.value;
+  chartTitle.value = `最高频的${numBugs.value}个故障`;
 
   // try {
   //   const response = await fetchTopBugData(numBugs.value, startDate.value, endDate.value);
@@ -156,8 +143,16 @@ const collapse = () => {
   startDate.value = null;
   endDate.value = null;
   shouldUpdate.value = false;
-  data.value = []; // 清空图表数据
+  data.value = [];
 };
+
+// 更新选择日期的文本显示
+watch(startDate, (newDate) => {
+  startDateText.value = newDate ? newDate.toLocaleDateString() : '';
+});
+watch(endDate, (newDate) => {
+  endDateText.value = newDate ? newDate.toLocaleDateString() : '';
+});
 </script>
 
 <style scoped>
@@ -178,12 +173,12 @@ h1 {
 }
 
 .date-picker {
-  width: 140px; /* 控制日期输入框宽度 */
+  width: 140px;
   margin-right: 20px;
 }
 
 .topic-select {
-  width: 120px; /* 控制下拉框宽度 */
+  width: 120px;
   margin-right: 20px;
 }
 
@@ -198,19 +193,23 @@ h1 {
   z-index: 10;
 }
 
-/* 图表部分样式 */
 .chart-container {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   gap: 20px;
 }
 
 .chart-item {
   flex: 1;
-  max-width: 33%;
+  max-width: 60%;
   min-width: 400px;
   height: 400px;
   box-sizing: border-box;
+}
+
+.chart-title-container {
+  display: flex;
+  justify-content: center;
 }
 
 @media (max-width: 1200px) {

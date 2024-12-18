@@ -3,13 +3,13 @@
     <img src="@/assets/logo-stackoverflow.svg" alt="Stack Overflow Logo" class="logo" />
 
     <div class="header-right">
-      <span class="title">Data Analysis</span>
+      <span class="title">数据分析</span>
     </div>
   </header>
 </template>
 
 <script setup>
-/* 这里无需添加逻辑，仅仅展示静态 Header */
+
 </script>
 
 <style scoped>
@@ -31,16 +31,15 @@
 
 .header-right {
   display: flex;
-  align-items: center; /* 垂直居中对齐文字和图标 */
+  align-items: center;
 }
 
 .title {
   margin-top: 12px;
-  font-size: 30px;
+  font-size: 24px;
   font-weight: 550;
   color: #F48024;
   font-family: 'Arial', sans-serif;
-  //letter-spacing: 1px;
   line-height: 1.2;
 }
 </style>

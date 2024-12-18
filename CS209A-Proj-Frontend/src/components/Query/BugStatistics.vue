@@ -1,8 +1,7 @@
 <template>
   <div class="error-statistics">
-    <h1>错误/异常: {{ bugName }} 详细数据</h1>
+    <h1>故障详细信息</h1>
 
-    <!-- 用户选择错误类型 -->
     <div class="select-container">
       <v-select
           v-model="bugName"
@@ -14,14 +13,12 @@
           class="custom-select"
       />
 
-      <!-- 查询按钮，点击查询才更新数据 -->
       <v-btn @click="fetchData" :disabled="!bugName" size="large" color="primary" class="query-button">
         <v-icon icon="mdi-magnify"></v-icon>
         查询
       </v-btn>
     </div>
 
-    <!-- 只有当 bugName 有值时才显示统计和图表 -->
     <div v-if="shouldUpdate">
       <div class="stats">
         <div class="stat-card" v-for="(value, key) in stats" :key="key">
@@ -31,21 +28,21 @@
       </div>
 
       <div class="chart">
+        <div class="chart-title-container">
+          <h2>{{ chartTitle }}</h2>
+        </div>
         <PieChart
-            :chartTitle="`${bugName} 错误类型占比`"
             :chartData="pieChartData"
         />
       </div>
     </div>
 
-    <!-- 收起按钮，只有在 bugName 有值时才显示 -->
     <div v-if="shouldUpdate" class="toggle-button-container">
       <v-btn @click="collapse" variant="text">
-        <v-icon left>mdi-chevron-up</v-icon>  <!-- 收起图标 -->
+        <v-icon left>mdi-chevron-up</v-icon>
         收起
       </v-btn>
     </div>
-
   </div>
 </template>
 
@@ -54,10 +51,13 @@ import { ref } from 'vue';
 import PieChart from "@/components/Chart/PieChart.vue";
 import {fetchBugStatisticsData} from "@/services/api.js";
 
-// 默认错误类型为空
 const bugName = ref("");
+const stats = ref({});
 
-// 下拉框选项（确保值为字符串）
+const chartTitle = ref(`${bugName.value} 发布类型占比`);
+const pieChartData = ref([]);
+const shouldUpdate = ref(false);
+
 const options = [
   { value: "NullPointerException", label: "NullPointerException" },
   { value: "IOException", label: "IOException" },
@@ -65,7 +65,6 @@ const options = [
   { value: "ClassNotFoundException", label: "ClassNotFoundException" },
 ];
 
-// 初始错误数据
 const statsData = {
   "NullPointerException": {
     frequency: 100,
@@ -105,15 +104,11 @@ const statsData = {
   },
 };
 
-const stats = ref({});
-const pieChartData = ref([]);
-
-const shouldUpdate = ref(false);
-
 // 查询按钮的点击事件，显示数据
 const fetchData = async () => {
   shouldUpdate.value = true;
   updateStats();
+  chartTitle.value = `${bugName.value} 发布类型占比`;
 
   // try {
   //   const response = await fetchBugStatisticsData(bugName.value);
@@ -153,8 +148,8 @@ const formatLabel = (key) => {
 const collapse = () => {
   bugName.value = "";
   shouldUpdate.value = false;
-  stats.value = {}; // 清空统计数据
-  pieChartData.value = []; // 清空饼图数据
+  stats.value = {};
+  pieChartData.value = [];
 };
 </script>
 
@@ -187,7 +182,6 @@ h1 {
   z-index: 10;
 }
 
-/* 数字统计部分样式 */
 .stats {
   display: flex;
   flex-wrap: wrap;
@@ -203,7 +197,7 @@ h1 {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   text-align: center;
   font-size: 18px;
-  width: 160px;
+  width: 150px;
 }
 
 .stat-card h4 {
@@ -218,8 +212,12 @@ h1 {
   color: #3498db;
 }
 
-/* 图表部分样式 */
 .chart {
-  margin-bottom: 30px;
+  margin-top: 40px;
+}
+
+.chart-title-container {
+  display: flex;
+  justify-content: center;
 }
 </style>

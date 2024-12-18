@@ -1,8 +1,7 @@
 <template>
   <div class="top-topics">
-    <h1>Top-{{ numTopics }} 热门用户参与 Topic</h1>
+    <h1>高用户参与度话题</h1>
 
-    <!-- 用户选择显示的最常见话题个数 -->
     <div class="select-container">
       <v-select
           v-model="numTopics"
@@ -11,22 +10,30 @@
           item-title="label"
           item-value="value"
           variant="outlined"
-          class="custom-select"
+          class="topic-select"
       />
 
-      <!-- 查询按钮，点击查询才更新数据 -->
+      <v-text-field
+          v-model="minReputation"
+          label="最低声望值(默认为0)"
+          variant="outlined"
+          color="primary"
+          placeholder="0"
+          class="reputation-input"
+      ></v-text-field>
+
       <v-btn @click="fetchData" :disabled="!numTopics" size="large" color="primary" class="query-button">
         <v-icon icon="mdi-magnify"></v-icon>
         查询
       </v-btn>
     </div>
 
-    <!-- 父容器，使用 Flexbox 布局，只有在 numTopics 有值时才显示 -->
     <div v-if="shouldUpdate" class="chart-container">
-      <!-- 使用 BarChart 组件，并传入自定义配置 -->
       <div class="chart-item">
+        <div class="chart-title-container">
+          <h2>{{ chartTitle }}</h2>
+        </div>
         <BarChart
-            :chartTitle="chartTitle"
             :xAxisLabel="xAxisLabel"
             :yAxisLabel="yAxisLabel"
             :chartData="data"
@@ -34,10 +41,9 @@
       </div>
     </div>
 
-    <!-- 收起按钮，只有在 numTopics 有值时才显示 -->
     <div v-if="shouldUpdate" class="toggle-button-container">
       <v-btn @click="collapse" variant="text">
-        <v-icon left>mdi-chevron-up</v-icon>  <!-- 收起图标 -->
+        <v-icon left>mdi-chevron-up</v-icon>
         收起
       </v-btn>
     </div>
@@ -47,13 +53,17 @@
 <script setup>
 import { ref, computed, watch } from 'vue';
 import BarChart from '../Chart/BarChart.vue';
+import {fetchTopTopicEngagementData} from "@/services/api.js";
 
-// 自定义图表标题和轴标签
-const chartTitle = ref('热门用户参与话题');
+const shouldUpdate = ref(false);
+const numTopics = ref("");
+const minReputation = ref(0);
+
+const chartTitle = ref(`用户参与度最高的${numTopics.value}个话题`);
 const xAxisLabel = ref('话题');
-const yAxisLabel = ref('用户参与值');
+const yAxisLabel = ref('用户参与度');
 
-// 图表数据
+let data = ref([]);
 const chartData = ref([
   { name: '面向对象编程', value: 25 },
   { name: 'Spring 框架', value: 20 },
@@ -67,12 +77,6 @@ const chartData = ref([
   { name: 'Git 和版本控制', value: 3 },
 ]);
 
-let data = ref([]);
-
-// 用户选择显示的最常见话题个数，默认为 空字符串
-const numTopics = ref("");
-
-// 下拉框选项（确保值为数字）
 const options = [
   { value: 5, label: '5个' },
   { value: 10, label: '10个' },
@@ -91,18 +95,24 @@ const filteredChartData = computed(() => {
   return sortedData.slice(0, numTopics.value);
 });
 
-// 控制数据更新的标志
-const shouldUpdate = ref(false);
-
 // 查询按钮的点击事件，显示数据
-const fetchData = () => {
+const fetchData = async () => {
   shouldUpdate.value = true;
-  data.value = filteredChartData.value; // 使用 data.value 更新
+  data.value = filteredChartData.value;
+  chartTitle.value = `用户参与度最高的${numTopics.value}个话题`;
+
+  // try {
+  //   const response = await fetchTopTopicEngagementData(numTopics.value, minReputation.value);
+  //   data.value = response.data.sort((a, b) => b.reputation - a.reputation);
+  // } catch (error) {
+  //   console.error('获取数据失败:', error);
+  // }
 };
 
-// 收起按钮的点击事件，恢复默认值并隐藏图表
+// 收起按钮的点击事件，恢复默认值并隐藏内容
 const collapse = () => {
   numTopics.value = "";
+  minReputation.value = 0;
   shouldUpdate.value = false;
 };
 </script>
@@ -124,12 +134,19 @@ h1 {
   margin-bottom: 20px;
 }
 
-.query-button {
-  margin-top: 5px;
-  margin-left: 20px;
+.topic-select {
+  width: 100px;
+  margin-right: 20px;
 }
 
-/* 收起按钮容器放置在父容器的右下角 */
+.reputation-input {
+  margin-right: 20px;
+}
+
+.query-button {
+  margin-top: 5px;
+}
+
 .toggle-button-container {
   position: absolute;
   bottom: 0;
@@ -139,16 +156,21 @@ h1 {
 
 .chart-container {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   gap: 20px;
 }
 
 .chart-item {
   flex: 1;
-  max-width: 33%;
+  max-width: 60%;
   min-width: 400px;
   height: 400px;
   box-sizing: border-box;
+}
+
+.chart-title-container {
+  display: flex;
+  justify-content: center;
 }
 
 @media (max-width: 1200px) {

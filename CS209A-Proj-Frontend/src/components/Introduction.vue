@@ -1,9 +1,9 @@
 <template>
   <section class="introduction">
     <div class="text">
-      <h2 class="title">Introduction</h2>
+      <h2 class="title">简介</h2>
       <p class="description">
-        Stack Overflow is a question-and-answer site for programming. This website collects and analyzes data about Java on the stack overflow website, and supports users to obtain relevant results.
+        Stack Overflow是一个编程问答网站。本网站收集和分析Stack Overflow网站上与Java相关的数据，并支持用户获取相关结果。
       </p>
     </div>
 
@@ -14,23 +14,23 @@
 </template>
 
 <script setup>
-/* 这里无需添加逻辑，仅展示静态内容 */
+
 </script>
 
 <style scoped>
 .introduction {
   display: flex;
-  justify-content: space-between; /* 左右分布 */
-  align-items: center; /* 垂直居中对齐 */
+  justify-content: space-between;
+  align-items: center;
   padding: 20px;
-  background-color: #fafafa; /* 背景颜色 */
-  border-radius: 8px; /* 边框圆角 */
-  box-shadow: 0 3px 4px rgba(0, 0, 0, 0.1); /* 添加阴影 */
+  background-color: #fafafa;
+  border-radius: 8px;
+  box-shadow: 0 3px 4px rgba(0, 0, 0, 0.1);
   margin: 10px 0;
 }
 
 .text {
-  flex: 1; /* 让文字部分占据剩余空间 */
+  flex: 1;
   padding-right: 20px;
   margin-right: 10%;
 }
@@ -50,12 +50,12 @@
 
 .image {
   flex: 0 0 45%;
-  max-width: 600px; /* 图片最大宽度 */
+  max-width: 600px;
 }
 
 .image img {
-  width: 100%; /* 让图片占满父容器的宽度 */
+  width: 100%;
   height: auto;
-  border-radius: 8px; /* 图片圆角 */
+  border-radius: 8px;
 }
 </style>

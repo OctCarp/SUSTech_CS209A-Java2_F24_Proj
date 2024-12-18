@@ -6,11 +6,11 @@
     </div>
 
     <div class="stat-item">
-      <TopBugs />
+      <TopicStatistics />
     </div>
 
     <div class="stat-item">
-      <TopicStatistics />
+      <TopBugs />
     </div>
 
     <div class="stat-item">
