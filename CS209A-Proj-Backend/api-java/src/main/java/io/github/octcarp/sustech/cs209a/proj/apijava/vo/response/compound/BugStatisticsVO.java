@@ -1,6 +1,6 @@
 package io.github.octcarp.sustech.cs209a.proj.apijava.vo.response.compound;
 
-import io.github.octcarp.sustech.cs209a.proj.apijava.vo.response.basic.attached.BugStatistics;
+import io.github.octcarp.sustech.cs209a.proj.apijava.dto.attached.BugStatistics;
 import io.github.octcarp.sustech.cs209a.proj.database.entity.BugPO;
 import lombok.Data;
 

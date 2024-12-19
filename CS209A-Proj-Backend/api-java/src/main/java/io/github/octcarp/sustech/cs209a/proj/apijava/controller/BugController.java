@@ -17,6 +17,11 @@ public class BugController {
     @Autowired
     private ApiBugService apiBugService;
 
+    @GetMapping("/getAll")
+    public List<BugPO> getAllBugs() {
+        return apiBugService.getAllBugs();
+    }
+
     @GetMapping("/getByName")
     public BugPO getBugByName(
         @RequestParam("bug_name") String bugName

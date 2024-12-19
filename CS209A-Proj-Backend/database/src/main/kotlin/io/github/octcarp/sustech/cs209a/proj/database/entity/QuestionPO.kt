@@ -3,6 +3,7 @@ package io.github.octcarp.sustech.cs209a.proj.database.entity
 import com.baomidou.mybatisplus.annotation.IdType
 import com.baomidou.mybatisplus.annotation.TableId
 import com.baomidou.mybatisplus.annotation.TableName
+import com.baomidou.mybatisplus.annotation.TableField
 import java.time.LocalDateTime
 
 @TableName("Questions")
@@ -14,8 +15,11 @@ data class QuestionPO(
     val title: String,
     val body: String,
 
+    @TableField(typeHandler = org.apache.ibatis.type.LocalDateTimeTypeHandler::class)
     val creationDate: LocalDateTime,
+    @TableField(typeHandler = org.apache.ibatis.type.LocalDateTimeTypeHandler::class)
     val lastActivityDate: LocalDateTime,
+    @TableField(typeHandler = org.apache.ibatis.type.LocalDateTimeTypeHandler::class)
     val lastEditDate: LocalDateTime?,
 
     val acceptedAnswerId: Long?,

@@ -3,7 +3,7 @@
 <mapper namespace="io.github.octcarp.sustech.cs209a.proj.apijava.mapper.BugAnalysisMapper">
 
     <resultMap id="BugAnalysisResultMap"
-               type="io.github.octcarp.sustech.cs209a.proj.apijava.vo.response.basic.attached.BugStatistics">
+               type="io.github.octcarp.sustech.cs209a.proj.apijava.dto.attached.BugStatistics">
         <result column="total_posts" property="totalPosts"/>
         <result column="question_count" property="questionCount"/>
         <result column="answer_count" property="answerCount"/>

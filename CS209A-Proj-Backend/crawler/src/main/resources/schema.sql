@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS Users, Questions, Answers, Comments, Tags, Topics, Post_Topics, Bugs, Post_Bugs;
+DROP TABLE IF EXISTS Users, Questions, Answers, Comments, Tags, Topics, Post_Topics, Bugs, Post_Bugs, Answers_Quality;
 
 CREATE TABLE Users
 (
@@ -95,4 +95,15 @@ CREATE TABLE Post_Bugs
     post_type   INT    NOT NULL, -- 'Question', 'Answer' or 'Comment'
     bug_id      BIGINT NOT NULL REFERENCES Bugs (bug_id),
     frequency   BIGINT DEFAULT 0
+);
+
+CREATE TABLE Answers_Quality
+(
+    answer_Id         BIGINT PRIMARY KEY,
+    quality_level     INT    NOT NULL, -- 'EXCELLENT', 'GOOD', 'FAIR', 'POOR'
+
+    response_seconds  BIGINT NOT NULL,
+    owner_reputation  INT,
+    owner_accept_rate INT,
+    answer_length     INT    NOT NULL
 );

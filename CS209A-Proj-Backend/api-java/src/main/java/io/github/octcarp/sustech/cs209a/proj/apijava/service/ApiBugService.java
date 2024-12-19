@@ -2,7 +2,7 @@ package io.github.octcarp.sustech.cs209a.proj.apijava.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import io.github.octcarp.sustech.cs209a.proj.apijava.mapper.BugAnalysisMapper;
-import io.github.octcarp.sustech.cs209a.proj.apijava.vo.response.basic.attached.BugStatistics;
+import io.github.octcarp.sustech.cs209a.proj.apijava.dto.attached.BugStatistics;
 import io.github.octcarp.sustech.cs209a.proj.database.entity.BugPO;
 import io.github.octcarp.sustech.cs209a.proj.apijava.vo.response.compound.BugStatisticsVO;
 import io.github.octcarp.sustech.cs209a.proj.database.service.BugService;
@@ -21,6 +21,10 @@ public class ApiBugService {
 
     public BugPO getBugByName(String bugName) {
         return bugService.getBugByName(bugName);
+    }
+
+    public List<BugPO> getAllBugs() {
+        return bugService.list();
     }
 
     public BugStatisticsVO getBugStatisticsByName(String bugName) {

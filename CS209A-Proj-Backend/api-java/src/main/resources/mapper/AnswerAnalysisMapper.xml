@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.github.octcarp.sustech.cs209a.proj.apijava.mapper.AnswerAnalysisMapper">
+
+    <resultMap id="AnswerWithDetailResultMap"
+               type="io.github.octcarp.sustech.cs209a.proj.apijava.dto.compound.AnswerWithDetailDTO">
+        <association
+                property="answer"
+                javaType="io.github.octcarp.sustech.cs209a.proj.apijava.dto.basic.AnswerApiDTO"
+        >
+            <id column="answer_id" property="answerId"/>
+            <result column="question_id" property="questionId"/>
+            <result column="owner_id" property="ownerId"/>
+            <result column="answer_body" property="body"/>
+            <result column="answer_creation_date" property="creationDate"/>
+            <result column="answer_last_activity_date" property="lastActivityDate"/>
+            <result column="answer_last_edit_date" property="lastEditDate"/>
+            <result column="is_accepted" property="isAccepted"/>
+            <result column="answer_score" property="score"/>
+            <result column="answer_up_vote_count" property="upVoteCount"/>
+            <result column="answer_down_vote_count" property="downVoteCount"/>
+        </association>
+
+        <association
+                property="question"
+                javaType="io.github.octcarp.sustech.cs209a.proj.apijava.dto.basic.QuestionApiDTO"
+        >
+            <id column="question_id" property="questionId"/>
+            <result column="title" property="title"/>
+            <result column="question_body" property="body"/>
+            <result column="creation_date" property="creationDate"/>
+            <result column="question_last_activity_date" property="lastActivityDate"/>
+            <result column="question_last_edit_date" property="lastEditDate"/>
+            <result column="accepted_answer_id" property="acceptedAnswerId"/>
+            <result column="question_score" property="score"/>
+            <result column="view_count" property="viewCount"/>
+            <result column="question_up_vote_count" property="upVoteCount"/>
+            <result column="question_down_vote_count" property="downVoteCount"/>
+            <result column="favorite_count" property="favoriteCount"/>
+        </association>
+
+        <association
+                property="owner"
+                javaType="io.github.octcarp.sustech.cs209a.proj.apijava.dto.basic.UserApiDTO"
+        >
+            <id column="user_id" property="userId"/>
+            <result column="display_name" property="displayName"/>
+            <result column="user_creation_date" property="creationDate"/>
+            <result column="reputation" property="reputation"/>
+            <result column="accept_rate" property="acceptRate"/>
+            <result column="user_up_vote_count" property="upVoteCount"/>
+            <result column="user_down_vote_count" property="downVoteCount"/>
+        </association>
+    </resultMap>
+
+    <select id="findAllAnswersWithDetail" resultMap="AnswerWithDetailResultMap">
+        SELECT a.answer_id,
+               a.question_id,
+               a.owner_id,
+               a.body               as answer_body,
+               a.creation_date      as answer_creation_date,
+               a.last_activity_date as answer_last_activity_date,
+               a.last_edit_date     as answer_last_edit_date,
+               a.is_accepted,
+               a.score              as answer_score,
+               a.up_vote_count      as answer_up_vote_count,
+               a.down_vote_count    as answer_down_vote_count,
+
+               q.title,
+               q.body               as question_body,
+               q.creation_date      as question_creation_date,
+               q.last_activity_date as question_last_activity_date,
+               q.last_edit_date     as question_last_edit_date,
+               q.accepted_answer_id,
+               q.score              as question_score,
+               q.view_count,
+               q.up_vote_count      as question_up_vote_count,
+               q.down_vote_count    as question_down_vote_count,
+               q.favorite_count,
+
+               u.user_id,
+               u.display_name,
+               u.creation_date      as user_creation_date,
+               u.reputation,
+               u.accept_rate,
+               u.up_vote_count      as user_up_vote_count,
+               u.down_vote_count    as user_down_vote_count
+        FROM Answers a
+                 LEFT JOIN Questions q ON a.question_id = q.question_id
+                 LEFT JOIN Users u ON a.owner_id = u.user_id
+    </select>
+</mapper>

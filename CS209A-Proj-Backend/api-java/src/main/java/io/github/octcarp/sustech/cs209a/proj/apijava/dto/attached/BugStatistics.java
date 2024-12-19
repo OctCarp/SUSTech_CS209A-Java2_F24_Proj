@@ -1,9 +1,9 @@
-package io.github.octcarp.sustech.cs209a.proj.apijava.vo.response.basic.attached;
+package io.github.octcarp.sustech.cs209a.proj.apijava.dto.attached;
 
 import lombok.Data;
 
 @Data
-public class TopicStatistics {
+public class BugStatistics {
     private Long totalPosts;
     private Long questionCount;
     private Long answerCount;
