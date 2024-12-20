@@ -2,6 +2,7 @@ package io.github.octcarp.sustech.cs209a.proj.apijava.controller;
 
 import io.github.octcarp.sustech.cs209a.proj.apijava.exception.BadRequestException;
 import io.github.octcarp.sustech.cs209a.proj.apijava.service.ApiTopicService;
+import io.github.octcarp.sustech.cs209a.proj.apijava.vo.response.basic.TopicBriefVO;
 import io.github.octcarp.sustech.cs209a.proj.apijava.vo.response.compound.TopicEngagementVO;
 import io.github.octcarp.sustech.cs209a.proj.apijava.vo.response.compound.TopicStatisticsVO;
 import io.github.octcarp.sustech.cs209a.proj.database.entity.TopicPO;
@@ -19,27 +20,27 @@ public class TopicController {
     @Autowired
     private ApiTopicService apiTopicService;
 
-    @GetMapping("/getAll")
-    public List<TopicPO> getAllTopics() {
-        return apiTopicService.getAllTopics();
+    @GetMapping("/all/brief")
+    public List<TopicBriefVO> getAllTopicsBrief() {
+        return apiTopicService.getAllTopicsBrief();
     }
 
-    @GetMapping("/getByName")
+    @GetMapping("/name/{topic-name}")
     public TopicPO getTopicByName(
-        @RequestParam("topic_name") String topicName
+        @PathVariable("topic-name") String topicName
     ) {
         return apiTopicService.getTopicByName(topicName);
     }
 
-    @GetMapping("/statistics")
+    @GetMapping("/name/{topic-name}/statistics")
     public TopicStatisticsVO getTopicStatistics(
-        @RequestParam("topic_name") String topicName,
-        @RequestParam(value = "start_time", required = false, defaultValue = "0") Long startMillisecond,
-        @RequestParam(value = "end_time", required = false, defaultValue = "1735660800") Long endMillisecond
+        @PathVariable("topic-name") String topicName,
+        @RequestParam(required = false, defaultValue = "0") Long startSecond,
+        @RequestParam(required = false, defaultValue = "1735660800") Long endSecond
     ) {
         LocalDateTime startDateTime, endDateTime;
-        startDateTime = LocalDateTime.ofEpochSecond(startMillisecond, 0, ZoneOffset.UTC);
-        endDateTime = LocalDateTime.ofEpochSecond(endMillisecond, 0, ZoneOffset.UTC);
+        startDateTime = LocalDateTime.ofEpochSecond(startSecond, 0, ZoneOffset.UTC);
+        endDateTime = LocalDateTime.ofEpochSecond(endSecond, 0, ZoneOffset.UTC);
         return apiTopicService.getTopicStatisticsByName(topicName, startDateTime, endDateTime);
     }
 

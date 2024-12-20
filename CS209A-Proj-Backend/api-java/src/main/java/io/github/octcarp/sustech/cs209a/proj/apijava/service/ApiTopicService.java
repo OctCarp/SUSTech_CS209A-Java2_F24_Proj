@@ -3,6 +3,7 @@ package io.github.octcarp.sustech.cs209a.proj.apijava.service;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import io.github.octcarp.sustech.cs209a.proj.apijava.mapper.TopicAnalysisMapper;
 import io.github.octcarp.sustech.cs209a.proj.apijava.dto.attached.TopicStatistics;
+import io.github.octcarp.sustech.cs209a.proj.apijava.vo.response.basic.TopicBriefVO;
 import io.github.octcarp.sustech.cs209a.proj.apijava.vo.response.compound.TopicEngagementVO;
 import io.github.octcarp.sustech.cs209a.proj.apijava.vo.response.compound.TopicStatisticsVO;
 import io.github.octcarp.sustech.cs209a.proj.database.entity.TopicPO;
@@ -28,8 +29,10 @@ public class ApiTopicService {
         return topicService.getTopicByName(topicName);
     }
 
-    public List<TopicPO> getAllTopics() {
-        return topicService.list();
+    public List<TopicBriefVO> getAllTopicsBrief() {
+        return topicService.list().parallelStream()
+            .map(topic -> new TopicBriefVO(topic.getTopicId(), topic.getTopicName()))
+            .collect(Collectors.toList());
     }
 
     public TopicStatisticsVO getTopicStatisticsByName(

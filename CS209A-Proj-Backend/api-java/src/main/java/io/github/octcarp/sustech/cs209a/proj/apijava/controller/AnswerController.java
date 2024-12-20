@@ -18,21 +18,21 @@ public class AnswerController {
     @Autowired
     private ApiAnswerService apiAnswerService;
 
-    @GetMapping("/quality/getAll/static")
+    @GetMapping("/all/quality/static")
     public List<AnswerQualityPO> getAllStaticAnswerQuality() {
         return apiAnswerService.getAllStaticAnswerQuality();
     }
 
     @Deprecated
-    @GetMapping("/quality/getAll")
+    @GetMapping("/all/quality")
     public List<AnswerQualityVO> getAllAnswerQuality() {
         return apiAnswerService.getAllAnswerQuality();
     }
 
     @Deprecated
-    @GetMapping("/{answer_id}/quality")
+    @GetMapping("/id/{id}/quality")
     public AnswerQualityVO getAnswerQualityById(
-        @PathVariable("answer_id") Long answerId
+        @PathVariable("id") Long answerId
     ) {
 //        AnswerQualityVO answerQualityVO = apiAnswerService.getAnswerQualityById(answerId);
 //        if (answerQualityVO == null) {
