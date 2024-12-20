@@ -53,26 +53,21 @@ class DataImportService(
     val bugFreqCount = mutableMapOf<Long, Long>()
     private var bugMapId = 0L
 
-    fun importStaticDataFromFile() {
-        commonSqlService.disableAllTriggers()
-        try {
-            beforeImport()
+    fun startImportStaticData() {
+        beforeImport()
 
-            val questions = loadQuestionJson()
-            val answers = loadAnswerJson()
-            val comments = loadCommentJson()
+        val questions = loadQuestionJson()
+        val answers = loadAnswerJson()
+        val comments = loadCommentJson()
 
-            importQuestions(questions)
-            importAnswers(answers)
-            importComments(comments)
+        importQuestions(questions)
+        importAnswers(answers)
+        importComments(comments)
 
-            val users = loadUserJson()
-            importUsers(users)
+        val users = loadUserJson()
+        importUsers(users)
 
-            afterImport()
-        } finally {
-            commonSqlService.enableAllTriggers()
-        }
+        afterImport()
     }
 
     private fun beforeImport() {
