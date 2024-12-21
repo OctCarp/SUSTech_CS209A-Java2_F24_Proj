@@ -45,7 +45,7 @@
 }
 
 .title {
-  margin-top: 12px;
+  margin-top: 7px;
   font-size: 24px;
   font-weight: 550;
   color: #F48024;

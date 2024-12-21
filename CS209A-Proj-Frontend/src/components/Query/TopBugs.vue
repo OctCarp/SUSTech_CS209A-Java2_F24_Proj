@@ -40,15 +40,24 @@
     </div>
 
     <div v-if="shouldUpdate" class="chart-container">
-      <!-- 使用 BarChart 组件，并传入自定义配置 -->
       <div class="chart-item">
         <div class="chart-title-container">
-          <h2>{{ chartTitle }}</h2>
+          <h2>{{ errorChartTitle }}</h2>
         </div>
         <BarChart
-            :xAxisLabel="xAxisLabel"
+            :xAxisLabel="errorXAxisLabel"
             :yAxisLabel="yAxisLabel"
-            :chartData="data"
+            :chartData="errorData"
+        />
+      </div>
+      <div class="chart-item">
+        <div class="chart-title-container">
+          <h2>{{ exceptionChartTitle }}</h2>
+        </div>
+        <BarChart
+            :xAxisLabel="exceptionXAxisLabel"
+            :yAxisLabel="yAxisLabel"
+            :chartData="exceptionData"
         />
       </div>
     </div>
@@ -86,64 +95,67 @@ const endDateText = ref('');
 const startDateDialog = ref(false);
 const endDateDialog = ref(false);
 
-// 自定义图表标题和轴标签
-const chartTitle = ref(`最高频的${numBugs.value}个故障`);
-const xAxisLabel = ref('故障');
+const errorChartTitle = ref(`最高频的${numBugs.value}个错误`);
+const exceptionChartTitle = ref(`最高频的${numBugs.value}个异常`);
+const errorXAxisLabel = ref('错误');
+const exceptionXAxisLabel = ref('异常');
 const yAxisLabel = ref('频率');
 
-let data = ref([]);
-const chartData = ref([
-  { name: 'NullPointerException', value: 25, date: '2024-01-01' },
-  { name: 'ArrayIndexOutOfBoundsException', value: 20, date: '2024-02-01' },
-  { name: 'IOException', value: 15, date: '2024-03-01' },
-  { name: 'SQLException', value: 12, date: '2024-04-01' },
-  { name: 'ClassNotFoundException', value: 10, date: '2024-05-01' },
-  { name: 'FileNotFoundException', value: 8, date: '2024-06-01' },
-  { name: 'RuntimeException', value: 7, date: '2024-07-01' },
-  { name: 'NoSuchMethodException', value: 5, date: '2024-08-01' },
-  { name: 'IllegalArgumentException', value: 4, date: '2024-09-01' },
-  { name: 'NumberFormatException', value: 3, date: '2024-10-01' },
-]);
+let errorData = ref([]);
+let exceptionData = ref([]);
 
 const options = [
   { value: 5, label: '5个' },
   { value: 10, label: '10个' },
   { value: 15, label: '15个' },
-  { value: 20, label: '20个' },
 ];
 
-// 根据选择的日期范围和错误数量进行过滤
-const filteredChartData = computed(() => {
-  if (!numBugs.value) return []; // 如果 numBugs 为空，返回空数组
-
-  // 排序数据：按频率从高到低
-  const sortedData = [...chartData.value].sort((a, b) => b.value - a.value);
-
-  // 根据用户选择的数量截取数据
-  return sortedData.slice(0, numBugs.value);
-});
-
-// 查询按钮的点击事件，显示数据
 const fetchData = async () => {
   shouldUpdate.value = true;
-  data.value = filteredChartData.value;
-  chartTitle.value = `最高频的${numBugs.value}个故障`;
+  errorChartTitle.value = `最高频的${numBugs.value}个错误`;
+  exceptionChartTitle.value = `最高频的${numBugs.value}个异常`;
 
-  // try {
-  //   const response = await fetchTopBugData(numBugs.value, startDate.value, endDate.value);
-  //   data.value = response.data.sort((a, b) => b.frequency - a.frequency);
-  // } catch (error) {
-  //   console.error('获取数据失败:', error);
-  // }
+  try {
+    // 将 startDate 和 endDate 转换为 Unix 时间戳（毫秒）
+    const startTimestamp = startDate.value ? startDate.value.getTime() : null;
+    const endTimestamp = endDate.value ? endDate.value.getTime() : null;
+
+    const errorType = 'ERROR';
+    const exceptionType = 'EXCEPTION';
+
+    const errorResponse = await fetchTopBugData(numBugs.value, errorType, startTimestamp, endTimestamp);
+    const exceptionResponse = await fetchTopBugData(numBugs.value, exceptionType, startTimestamp, endTimestamp);
+    if (Array.isArray(exceptionResponse) && Array.isArray(errorResponse)) {
+      errorData.value = errorResponse.map(item => ({
+        name: item.bugName.replace(/(Error|Exception)$/, ''),  // 裁剪掉 "Error" 或 "Exception"
+        value: item.bugFrequency,
+        type: item.bugType,
+      })).sort((a, b) => b.value - a.value);
+      exceptionData.value = exceptionResponse.map(item => ({
+        name: item.bugName.replace(/(Error|Exception)$/, ''),  // 裁剪掉 "Error" 或 "Exception"
+        value: item.bugFrequency,
+        type: item.bugType,
+      })).sort((a, b) => b.value - a.value);
+    } else {
+      console.error("返回的数据格式不正确", errorResponse, exceptionResponse);
+      errorData.value = [];
+      exceptionData.value = [];
+    }
+  } catch (error) {
+    console.error('获取数据失败:', error);
+    errorData.value = [];
+    exceptionData.value = [];
+  }
 };
 
 // 收起按钮的点击事件，恢复默认值并隐藏图表
 const collapse = () => {
+  shouldUpdate.value = false;
   numBugs.value = '';
   startDate.value = null;
   endDate.value = null;
-  shouldUpdate.value = false;
-  data.value = [];
+  errorData.value = [];
+  exceptionData.value = [];
 };
 
 // 更新选择日期的文本显示
@@ -195,14 +207,13 @@ h1 {
 
 .chart-container {
   display: flex;
+  flex-direction: column;
   justify-content: center;
   gap: 20px;
 }
 
 .chart-item {
-  flex: 1;
-  max-width: 60%;
-  min-width: 400px;
+  max-width: 100%;
   height: 400px;
   box-sizing: border-box;
 }

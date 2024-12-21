@@ -45,7 +45,7 @@
   font-size: 18px;
   color: #666;
   line-height: 1.6;
-  margin-top: 20px;
+  margin-top: 30px;
 }
 
 .image {

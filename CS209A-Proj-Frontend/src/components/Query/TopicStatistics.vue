@@ -3,15 +3,37 @@
     <h1>话题详细信息</h1>
 
     <div class="select-container">
-      <v-select
+      <v-text-field
+          v-model="startDateText"
+          label="开始日期"
+          prepend-inner-icon="mdi-calendar"
+          readonly
+          color="primary"
+          @click="startDateDialog = true"
+          class="date-picker"
+      ></v-text-field>
+
+      <v-text-field
+          v-model="endDateText"
+          label="结束日期"
+          prepend-inner-icon="mdi-calendar"
+          readonly
+          color="primary"
+          @click="endDateDialog = true"
+          class="date-picker"
+      ></v-text-field>
+
+      <v-autocomplete
           v-model="topicName"
-          :items="options"
-          label="选择话题"
-          item-title="label"
-          item-value="value"
+          :items="topicOptions"
+          label="输入话题名称"
+          density="comfortable"
+          menu-icon=""
           variant="outlined"
-          class="custom-select"
-      />
+          auto-select-first
+          item-props
+          class="input-topic"
+      ></v-autocomplete>
 
       <v-btn @click="fetchData" :disabled="!topicName" size="large" color="primary" class="query-button">
         <v-icon icon="mdi-magnify"></v-icon>
@@ -27,7 +49,7 @@
         </div>
       </div>
 
-      <div class="chart">
+      <div class="chart-container">
         <div class="chart-title-container">
           <h2>{{ chartTitle }}</h2>
         </div>
@@ -43,84 +65,98 @@
         收起
       </v-btn>
     </div>
+
+    <v-dialog v-model="startDateDialog" max-width="290px">
+      <v-date-picker v-model="startDate" @input="startDateDialog = false" :max="endDate" color="primary"></v-date-picker>
+    </v-dialog>
+
+    <v-dialog v-model="endDateDialog" max-width="290px">
+      <v-date-picker v-model="endDate" @input="endDateDialog = false" :min="startDate" color="primary"></v-date-picker>
+    </v-dialog>
+
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import {ref, onMounted, watch} from 'vue';
 import PieChart from "@/components/Chart/PieChart.vue";
-import {fetchTopicStatisticsData} from "@/services/api.js";
+import { fetchTopicStatisticsData, fetchAllTopicName } from "@/services/api.js";
 
 const topicName = ref("");
 const stats = ref({});
+
+const startDate = ref(null);
+const endDate = ref(null);
+const startDateText = ref('');
+const endDateText = ref('');
+const startDateDialog = ref(false);
+const endDateDialog = ref(false);
 
 const chartTitle = ref(`${topicName.value} 发布类型占比`);
 const pieChartData = ref([]);
 const shouldUpdate = ref(false);
 
-const options = [
-  { value: "Java Programming", label: "Java Programming" },
-  { value: "Python Programming", label: "Python Programming" },
-  { value: "Web Development", label: "Web Development" },
-];
+const topicOptions = ref([]);
 
-const statsData = {
-  "Java Programming": {
-    frequency: 320,
-    totalPosts: 1200,
-    questionCount: 700,
-    answerCount: 450,
-    commentCount: 500,
-    userCount: 900,
-    totalViews: 10000,
-  },
-  "Python Programming": {
-    frequency: 500,
-    totalPosts: 1500,
-    questionCount: 800,
-    answerCount: 600,
-    commentCount: 550,
-    userCount: 1000,
-    totalViews: 15000,
-  },
-  "Web Development": {
-    frequency: 400,
-    totalPosts: 1100,
-    questionCount: 650,
-    answerCount: 500,
-    commentCount: 600,
-    userCount: 850,
-    totalViews: 12000,
-  },
+let data = ref();
+
+const fetchAllTopicNameData = async () => {
+  try {
+    const response = await fetchAllTopicName();
+    if (response && Array.isArray(response)) {
+      topicOptions.value = response.map((item) => ({
+        title: item.topicName,
+      }));
+    }
+  } catch (error) {
+    console.error("获取所有话题失败:", error);
+  }
 };
 
-// 查询按钮的点击事件，显示数据
 const fetchData = async () => {
   shouldUpdate.value = true;
-  updateStats();
   chartTitle.value = `${topicName.value} 发布类型占比`;
 
-  // try {
-  //   const response = await fetchTopicStatisticsData(topicName.value);
-  //   statsData.value = response.data;
-  // } catch (error) {
-  //   console.error('获取数据失败:', error);
-  // }
+  try {
+    // 将 startDate 和 endDate 转换为 Unix 时间戳（毫秒）
+    const startTimestamp = startDate.value ? startDate.value.getTime() : null;
+    const endTimestamp = endDate.value ? endDate.value.getTime() : null;
+
+    const response = await fetchTopicStatisticsData(topicName.value, startTimestamp, endTimestamp);
+    if (response && response.topicStatistics) {
+      data.value = response;
+      updateStats();
+    } else {
+      console.error("返回的数据格式不正确", response);
+      data.value = [];
+    }
+  } catch (error) {
+    console.error('获取数据失败:', error);
+    data.value = [];
+  }
 };
 
-// 更新统计数据和饼图数据
 const updateStats = () => {
-  if (topicName.value && statsData[topicName.value]) {
-    stats.value = statsData[topicName.value];
+  if (topicName.value && data.value.topicStatistics) {
+    const topicStatistics = data.value.topicStatistics;
+    stats.value = {
+      frequency: data.value.topic.frequency,
+      totalPosts: topicStatistics.totalPosts,
+      questionCount: topicStatistics.questionCount,
+      answerCount: topicStatistics.answerCount,
+      commentCount: topicStatistics.commentCount,
+      userCount: topicStatistics.userCount,
+      totalViews: topicStatistics.totalViews,
+    };
+
     pieChartData.value = [
-      { name: 'Questions', value: stats.value.questionCount },
-      { name: 'Answers', value: stats.value.answerCount },
-      { name: 'Comments', value: stats.value.commentCount },
+      { name: 'Questions', value: topicStatistics.questionCount },
+      { name: 'Answers', value: topicStatistics.answerCount },
+      { name: 'Comments', value: topicStatistics.commentCount },
     ];
   }
 };
 
-// 格式化标签，转换为更友好的展示形式
 const formatLabel = (key) => {
   switch (key) {
     case 'frequency': return '话题频率';
@@ -134,13 +170,27 @@ const formatLabel = (key) => {
   }
 };
 
-// 收起按钮的点击事件，恢复默认值并隐藏内容
 const collapse = () => {
-  topicName.value = "";
   shouldUpdate.value = false;
+  topicName.value = "";
+  startDate.value = null;
+  endDate.value = null;
   stats.value = {};
   pieChartData.value = [];
+  data.value = {};
 };
+
+// 更新选择日期的文本显示
+watch(startDate, (newDate) => {
+  startDateText.value = newDate ? newDate.toLocaleDateString() : '';
+});
+watch(endDate, (newDate) => {
+  endDateText.value = newDate ? newDate.toLocaleDateString() : '';
+});
+
+onMounted(() => {
+  fetchAllTopicNameData();
+});
 </script>
 
 <style scoped>
@@ -160,9 +210,18 @@ h1 {
   margin-bottom: 20px;
 }
 
+.date-picker {
+  width: 140px;
+  margin-right: 20px;
+}
+
+.input-topic {
+  width: 120px;
+  margin-right: 20px;
+}
+
 .query-button {
   margin-top: 5px;
-  margin-left: 20px;
 }
 
 .toggle-button-container {
@@ -202,7 +261,7 @@ h1 {
   color: #3498db;
 }
 
-.chart {
+.chart-container {
   margin-top: 40px;
 }
 

@@ -3,29 +3,60 @@
     <h1>高用户参与度话题</h1>
 
     <div class="select-container">
-      <v-select
-          v-model="numTopics"
-          :items="options"
-          label="选择显示话题个数"
-          item-title="label"
-          item-value="value"
-          variant="outlined"
-          class="topic-select"
-      />
+      <div class="filter-container">
+        <!-- 第一行：开始日期和结束日期 -->
+        <div class="date-picker-container">
+          <v-text-field
+              v-model="startDateText"
+              label="开始日期"
+              prepend-inner-icon="mdi-calendar"
+              readonly
+              color="primary"
+              @click="startDateDialog = true"
+              class="date-picker"
+          ></v-text-field>
 
-      <v-text-field
-          v-model="minReputation"
-          label="最低声望值(默认为0)"
-          variant="outlined"
-          color="primary"
-          placeholder="0"
-          class="reputation-input"
-      ></v-text-field>
+          <v-text-field
+              v-model="endDateText"
+              label="结束日期"
+              prepend-inner-icon="mdi-calendar"
+              readonly
+              color="primary"
+              @click="endDateDialog = true"
+              class="date-picker"
+          ></v-text-field>
+        </div>
 
-      <v-btn @click="fetchData" :disabled="!numTopics" size="large" color="primary" class="query-button">
-        <v-icon icon="mdi-magnify"></v-icon>
-        查询
-      </v-btn>
+        <!-- 第二行：话题个数选择框和声望值输入框 -->
+        <div class="topic-reputation-container">
+          <v-select
+              v-model="numTopics"
+              :items="options"
+              label="选择显示话题个数"
+              item-title="label"
+              item-value="value"
+              variant="outlined"
+              class="topic-select"
+          />
+
+          <v-text-field
+              v-model="minReputation"
+              label="最低声望值(默认为0)"
+              variant="outlined"
+              color="primary"
+              placeholder="0"
+              class="reputation-input"
+          />
+        </div>
+      </div>
+
+      <!-- 查询按钮放在右侧并垂直居中 -->
+      <div class="query-button-container">
+        <v-btn @click="fetchData" :disabled="!numTopics" size="large" color="primary" class="query-button">
+          <v-icon icon="mdi-magnify"></v-icon>
+          查询
+        </v-btn>
+      </div>
     </div>
 
     <div v-if="shouldUpdate" class="chart-container">
@@ -47,74 +78,85 @@
         收起
       </v-btn>
     </div>
+
+    <v-dialog v-model="startDateDialog" max-width="290px">
+      <v-date-picker v-model="startDate" @input="startDateDialog = false" :max="endDate" color="primary"></v-date-picker>
+    </v-dialog>
+
+    <v-dialog v-model="endDateDialog" max-width="290px">
+      <v-date-picker v-model="endDate" @input="endDateDialog = false" :min="startDate" color="primary"></v-date-picker>
+    </v-dialog>
   </div>
 </template>
 
 <script setup>
 import { ref, computed, watch } from 'vue';
 import BarChart from '../Chart/BarChart.vue';
-import {fetchTopTopicEngagementData} from "@/services/api.js";
+import { fetchTopTopicData, fetchTopTopicEngagementData } from "@/services/api.js";
 
 const shouldUpdate = ref(false);
 const numTopics = ref("");
 const minReputation = ref(0);
+
+const startDate = ref(null);
+const endDate = ref(null);
+const startDateText = ref('');
+const endDateText = ref('');
+const startDateDialog = ref(false);
+const endDateDialog = ref(false);
 
 const chartTitle = ref(`用户参与度最高的${numTopics.value}个话题`);
 const xAxisLabel = ref('话题');
 const yAxisLabel = ref('用户参与度');
 
 let data = ref([]);
-const chartData = ref([
-  { name: '面向对象编程', value: 25 },
-  { name: 'Spring 框架', value: 20 },
-  { name: '异常处理', value: 15 },
-  { name: '并发与多线程', value: 12 },
-  { name: '流与 Lambda', value: 10 },
-  { name: 'Hibernate / JPA', value: 8 },
-  { name: '设计模式', value: 7 },
-  { name: 'JVM 内部机制', value: 5 },
-  { name: '垃圾回收', value: 4 },
-  { name: 'Git 和版本控制', value: 3 },
-]);
 
 const options = [
   { value: 5, label: '5个' },
   { value: 10, label: '10个' },
   { value: 15, label: '15个' },
-  { value: 20, label: '20个' },
 ];
-
-// 计算过滤后的数据（根据用户选择的数量进行过滤）
-const filteredChartData = computed(() => {
-  if (!numTopics.value) return []; // 如果 numTopics 为空，返回空数组
-
-  // 排序数据：按频率从高到低
-  const sortedData = [...chartData.value].sort((a, b) => b.value - a.value);
-
-  // 根据用户选择的数量截取数据
-  return sortedData.slice(0, numTopics.value);
-});
 
 // 查询按钮的点击事件，显示数据
 const fetchData = async () => {
   shouldUpdate.value = true;
-  data.value = filteredChartData.value;
   chartTitle.value = `用户参与度最高的${numTopics.value}个话题`;
 
-  // try {
-  //   const response = await fetchTopTopicEngagementData(numTopics.value, minReputation.value);
-  //   data.value = response.data.sort((a, b) => b.reputation - a.reputation);
-  // } catch (error) {
-  //   console.error('获取数据失败:', error);
-  // }
+  try {
+    // 将 startDate 和 endDate 转换为 Unix 时间戳（毫秒）
+    const startTimestamp = startDate.value ? startDate.value.getTime() : null;
+    const endTimestamp = endDate.value ? endDate.value.getTime() : null;
+
+    const response = await fetchTopTopicEngagementData(numTopics.value, minReputation.value, startTimestamp, endTimestamp);
+    if (Array.isArray(response)) {
+      data.value = response.map(item => ({
+        name: item.topicName,
+        value: item.engagementScore,
+        type: 'TOPIC',
+      })).sort((a, b) => b.value - a.value);
+    } else {
+      console.error("返回的数据格式不正确", response);
+      data.value = [];
+    }
+  } catch (error) {
+    console.error('获取数据失败:', error);
+    data.value = [];
+  }
 };
 
-// 收起按钮的点击事件，恢复默认值并隐藏内容
 const collapse = () => {
   numTopics.value = "";
   minReputation.value = 0;
   shouldUpdate.value = false;
 };
+
+// 更新选择日期的文本显示
+watch(startDate, (newDate) => {
+  startDateText.value = newDate ? newDate.toLocaleDateString() : '';
+});
+watch(endDate, (newDate) => {
+  endDateText.value = newDate ? newDate.toLocaleDateString() : '';
+});
 </script>
 
 <style scoped>
@@ -130,21 +172,44 @@ h1 {
 
 .select-container {
   display: flex;
-  justify-content: center;
+  gap: 15px;
   margin-bottom: 20px;
 }
 
+.filter-container {
+  width: 100%;
+}
+
+.date-picker-container,
+.topic-reputation-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.date-picker {
+  width: 140px;
+  margin-right: 20px;
+}
+
 .topic-select {
-  width: 100px;
+  width: 140px;
   margin-right: 20px;
 }
 
 .reputation-input {
+  width: 140px;
   margin-right: 20px;
 }
 
+/* 将查询按钮放置在右侧并垂直居中 */
+.query-button-container {
+  display: flex;
+  justify-content: flex-end; /* 右侧对齐 */
+  align-items: center; /* 垂直居中 */
+}
+
 .query-button {
-  margin-top: 5px;
 }
 
 .toggle-button-container {
@@ -161,9 +226,8 @@ h1 {
 }
 
 .chart-item {
-  flex: 1;
-  max-width: 60%;
-  min-width: 400px;
+  max-width: 90%;
+  min-width: 600px;
   height: 400px;
   box-sizing: border-box;
 }

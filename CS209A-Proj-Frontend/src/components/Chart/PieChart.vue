@@ -27,11 +27,20 @@ const initChart = () => {
           trigger: 'item',
           formatter: '{a} <br/>{b} : {c} ({d}%)', // 格式化提示框内容
         },
+        legend: {
+          top: '5%',
+          left: 'center'
+        },
         series: [
           {
-            type: 'pie',  // 使用 pie 类型
-            radius: '50%',
-            center: ['50%', '40%'], // 将饼图居中
+            type: 'pie',
+            radius: ['40%', '70%'], // 设置饼图的内外半径
+            center: ['50%', '55%'], // 将饼图居中
+            avoidLabelOverlap: false,
+            padAngle: 5,
+            itemStyle: {
+              borderRadius: 10
+            },
             data: props.chartData.map((item) => ({
               value: item.value,
               name: item.name,
@@ -39,8 +48,17 @@ const initChart = () => {
             label: {
               normal: {
                 // 格式化标签内容：显示名称、数值和百分比
+                show: false,
+                position: 'center',
                 formatter: '{b}: {c} ({d}%)',  // 显示扇区名称、值、百分比
                 fontSize: 12,  // 标签字体大小
+              }
+            },
+            emphasis: {
+              label: {
+                show: true,
+                fontSize: 20,
+                fontWeight: 'bold'
               }
             },
             labelLine: {

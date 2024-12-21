@@ -3,15 +3,37 @@
     <h1>故障详细信息</h1>
 
     <div class="select-container">
-      <v-select
+      <v-text-field
+          v-model="startDateText"
+          label="开始日期"
+          prepend-inner-icon="mdi-calendar"
+          readonly
+          color="primary"
+          @click="startDateDialog = true"
+          class="date-picker"
+      ></v-text-field>
+
+      <v-text-field
+          v-model="endDateText"
+          label="结束日期"
+          prepend-inner-icon="mdi-calendar"
+          readonly
+          color="primary"
+          @click="endDateDialog = true"
+          class="date-picker"
+      ></v-text-field>
+
+      <v-autocomplete
           v-model="bugName"
-          :items="options"
-          label="选择错误类型"
-          item-title="label"
-          item-value="value"
+          :items="bugOptions"
+          label="输入故障名称"
+          density="comfortable"
+          menu-icon=""
           variant="outlined"
-          class="custom-select"
-      />
+          auto-select-first
+          item-props
+          class="input-topic"
+      ></v-autocomplete>
 
       <v-btn @click="fetchData" :disabled="!bugName" size="large" color="primary" class="query-button">
         <v-icon icon="mdi-magnify"></v-icon>
@@ -27,7 +49,7 @@
         </div>
       </div>
 
-      <div class="chart">
+      <div class="chart-container">
         <div class="chart-title-container">
           <h2>{{ chartTitle }}</h2>
         </div>
@@ -43,89 +65,94 @@
         收起
       </v-btn>
     </div>
+
+    <v-dialog v-model="startDateDialog" max-width="290px">
+      <v-date-picker v-model="startDate" @input="startDateDialog = false" :max="endDate" color="primary"></v-date-picker>
+    </v-dialog>
+
+    <v-dialog v-model="endDateDialog" max-width="290px">
+      <v-date-picker v-model="endDate" @input="endDateDialog = false" :min="startDate" color="primary"></v-date-picker>
+    </v-dialog>
+
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import {onMounted, ref, watch} from 'vue';
 import PieChart from "@/components/Chart/PieChart.vue";
-import {fetchBugStatisticsData} from "@/services/api.js";
+import {fetchAllBugName, fetchBugStatisticsData} from "@/services/api.js";
 
 const bugName = ref("");
 const stats = ref({});
+
+const startDate = ref(null);
+const endDate = ref(null);
+const startDateText = ref('');
+const endDateText = ref('');
+const startDateDialog = ref(false);
+const endDateDialog = ref(false);
 
 const chartTitle = ref(`${bugName.value} 发布类型占比`);
 const pieChartData = ref([]);
 const shouldUpdate = ref(false);
 
-const options = [
-  { value: "NullPointerException", label: "NullPointerException" },
-  { value: "IOException", label: "IOException" },
-  { value: "SQLException", label: "SQLException" },
-  { value: "ClassNotFoundException", label: "ClassNotFoundException" },
-];
+const bugOptions = ref([]);
 
-const statsData = {
-  "NullPointerException": {
-    frequency: 100,
-    totalErrors: 1200,
-    criticalCount: 700,
-    warningCount: 400,
-    infoCount: 100,
-    userCount: 300,
-    totalViews: 5000,
-  },
-  "IOException": {
-    frequency: 80,
-    totalErrors: 900,
-    criticalCount: 600,
-    warningCount: 200,
-    infoCount: 100,
-    userCount: 200,
-    totalViews: 4000,
-  },
-  "SQLException": {
-    frequency: 120,
-    totalErrors: 1300,
-    criticalCount: 750,
-    warningCount: 400,
-    infoCount: 150,
-    userCount: 350,
-    totalViews: 6000,
-  },
-  "ClassNotFoundException": {
-    frequency: 90,
-    totalErrors: 1100,
-    criticalCount: 500,
-    warningCount: 400,
-    infoCount: 200,
-    userCount: 250,
-    totalViews: 4500,
-  },
+let data = ref();
+
+const fetchAllBugNameData = async () => {
+  try {
+    const response = await fetchAllBugName();
+    if (response && Array.isArray(response)) {
+      bugOptions.value = response.map((item) => ({
+        title: item.bugName,
+      }));
+    }
+  } catch (error) {
+    console.error("获取所有故障失败:", error);
+  }
 };
 
-// 查询按钮的点击事件，显示数据
 const fetchData = async () => {
   shouldUpdate.value = true;
-  updateStats();
   chartTitle.value = `${bugName.value} 发布类型占比`;
 
-  // try {
-  //   const response = await fetchBugStatisticsData(bugName.value);
-  //   statsData.value = response.data;
-  // } catch (error) {
-  //   console.error('获取数据失败:', error);
-  // }
+  try {
+    // 将 startDate 和 endDate 转换为 Unix 时间戳（毫秒）
+    const startTimestamp = startDate.value ? startDate.value.getTime() : null;
+    const endTimestamp = endDate.value ? endDate.value.getTime() : null;
+
+    const response = await fetchBugStatisticsData(bugName.value, startTimestamp, endTimestamp);
+    if (response && response.bugStatistics) {
+      data.value = response;
+      updateStats();
+    } else {
+      console.error("返回的数据格式不正确", response);
+      data.value = [];
+    }
+  } catch (error) {
+    console.error('获取数据失败:', error);
+    data.value = [];
+  }
 };
 
-// 更新统计数据和饼图数据
 const updateStats = () => {
-  if (bugName.value && statsData[bugName.value]) {
-    stats.value = statsData[bugName.value];
+  if (bugName.value && data.value.bugStatistics) {
+    const bugStatistics = data.value.bugStatistics;
+    stats.value = {
+      frequency: data.value.bug.bugFrequency,
+      totalPosts: bugStatistics.totalPosts,
+      questionCount: bugStatistics.questionCount,
+      answerCount: bugStatistics.answerCount,
+      commentCount: bugStatistics.commentCount,
+      userCount: bugStatistics.userCount,
+      totalViews: bugStatistics.totalViews,
+    };
+
     pieChartData.value = [
-      { name: 'Critical Errors', value: stats.value.criticalCount },
-      { name: 'Warning Errors', value: stats.value.warningCount },
-      { name: 'Info Errors', value: stats.value.infoCount },
+      { name: 'Questions', value: bugStatistics.questionCount },
+      { name: 'Answers', value: bugStatistics.answerCount },
+      { name: 'Comments', value: bugStatistics.commentCount },
     ];
   }
 };
@@ -133,24 +160,38 @@ const updateStats = () => {
 // 格式化标签，转换为更友好的展示形式
 const formatLabel = (key) => {
   switch (key) {
-    case 'frequency': return '错误频率';
-    case 'totalErrors': return '错误总数';
-    case 'criticalCount': return '严重错误数';
-    case 'warningCount': return '警告错误数';
-    case 'infoCount': return '信息错误数';
-    case 'userCount': return '用户数';
+    case 'frequency': return '话题频率';
+    case 'totalPosts': return '帖子总数';
+    case 'questionCount': return '问题数';
+    case 'answerCount': return '回答数';
+    case 'commentCount': return '评论数';
+    case 'userCount': return '参与用户总数';
     case 'totalViews': return '访问量';
     default: return key;
   }
 };
 
-// 收起按钮的点击事件，恢复默认值并隐藏内容
 const collapse = () => {
-  bugName.value = "";
   shouldUpdate.value = false;
+  bugName.value = "";
+  startDate.value = null;
+  endDate.value = null;
   stats.value = {};
   pieChartData.value = [];
+  data.value = {};
 };
+
+// 更新选择日期的文本显示
+watch(startDate, (newDate) => {
+  startDateText.value = newDate ? newDate.toLocaleDateString() : '';
+});
+watch(endDate, (newDate) => {
+  endDateText.value = newDate ? newDate.toLocaleDateString() : '';
+});
+
+onMounted(() => {
+  fetchAllBugNameData();
+});
 </script>
 
 <style scoped>
@@ -170,9 +211,18 @@ h1 {
   margin-bottom: 20px;
 }
 
+.date-picker {
+  width: 140px;
+  margin-right: 20px;
+}
+
+.input-topic {
+  width: 120px;
+  margin-right: 20px;
+}
+
 .query-button {
   margin-top: 5px;
-  margin-left: 20px;
 }
 
 .toggle-button-container {
@@ -212,7 +262,7 @@ h1 {
   color: #3498db;
 }
 
-.chart {
+.chart-container {
   margin-top: 40px;
 }
 

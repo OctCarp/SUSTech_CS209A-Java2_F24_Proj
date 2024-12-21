@@ -20,6 +20,10 @@
       <TopUserEngagement />
     </div>
 
+    <div class="stat-item">
+      <AnswerQuality />
+    </div>
+
   </section>
 </template>
 
@@ -29,18 +33,19 @@ import TopBugs from "@/components/Query/TopBugs.vue";
 import TopicStatistics from "@/components/Query/TopicStatistics.vue";
 import BugStatistics from "@/components/Query/BugStatistics.vue";
 import TopUserEngagement from "@/components/Query/TopUserEngagement.vue";
+import AnswerQuality from "@/components/Query/AnswerQuality.vue";
 </script>
 
 <style scoped>
 .statistics {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 48%));
   gap: 20px;
   padding: 20px;
+  justify-content: center;
 }
 
 .stat-item {
-  flex: 1 1 45%;
   background-color: #fafafa;
   padding: 20px;
   border-radius: 8px;
@@ -48,8 +53,8 @@ import TopUserEngagement from "@/components/Query/TopUserEngagement.vue";
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-  min-height: 0;
-  height: auto;
-  box-sizing: border-box;
+  min-height: 0;               /* 防止父容器的高度影响 */
+  height: auto;                /* 根据内容自适应高度 */
+  box-sizing: border-box;      /* 包括内边距和边框 */
 }
 </style>

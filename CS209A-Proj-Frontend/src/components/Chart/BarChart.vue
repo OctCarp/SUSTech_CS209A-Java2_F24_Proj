@@ -24,6 +24,13 @@ const props = defineProps({
   },
 });
 
+// 存储颜色映射
+const colorMap = {
+  'TOPIC': '#5470c6',
+  'ERROR': '#ee6666',
+  'EXCEPTION': '#fac858',
+};
+
 const chartRef = ref(null);
 let chartInstance = null;
 
@@ -32,62 +39,104 @@ const initChart = () => {
     if (chartRef.value) {
       chartInstance = echarts.init(chartRef.value);
 
+      // 根据 xAxisLabel 动态决定 legend 和 series 的 name 配置
+      let legendData = [];
+      let seriesName = '';
+      let seriesData = [];
+
+      if (props.xAxisLabel === '话题') {
+        legendData = ['Topic'];
+        seriesName = 'Topic';
+        seriesData = props.chartData.map((item) => item.value);
+      } else if (props.xAxisLabel === '错误') {
+        legendData = ['Error'];
+        seriesName = 'Error';
+        seriesData = props.chartData.map((item) => item.value);
+      } else if (props.xAxisLabel === '异常') {
+        legendData = ['Exception'];
+        seriesName = 'Exception';
+        seriesData = props.chartData.map((item) => item.value);
+      }
+
       const options = {
         tooltip: {
           trigger: 'axis',
+          formatter: function (params) {
+            const param = params[0]; // 获取当前悬停的柱子数据
+            const { name, value, dataIndex } = param;
+            let type = props.chartData[dataIndex].type;
+
+            // 根据 type 对 name 和 type 做不同的处理
+            let formattedName = name;
+            let formattedType = type.charAt(0).toUpperCase() + type.slice(1).toLowerCase(); // 首字母大写，后面的字母小写
+
+            if (type === 'ERROR' || type === 'EXCEPTION') {
+              // 对于 ERROR 或 EXCEPTION，修改 name 为原 name 加上格式化后的 type
+              formattedName = `${name}${formattedType}`;
+            }
+
+            // 返回格式化后的 tooltip 内容
+            return `${formattedName}<br/>Type: ${formattedType}<br/>Value: ${value}`;
+          }
         },
         grid: {
-          left: '20%', // 设置图表左边距
-          right: '20%', // 设置图表右边距
-          bottom: '50%', // 设置图表底边距，给横坐标更多空间
+          left: '20%',
+          right: '20%',
+          bottom: '40%',
         },
         xAxis: {
-          name: props.xAxisLabel, // 使用自定义的 x 轴标签
+          name: props.xAxisLabel,
           type: 'category',
           data: props.chartData.map((item) => item.name),
           axisLabel: {
-            rotate: 70, // 旋转坐标轴标签，避免重叠
-            margin: 10,  // 调整标签与坐标轴的间距
-            interval: 0, // 每个标签都显示
-            fontSize: 12,  // 减小字体大小
+            rotate: 45,
+            margin: 10,
+            interval: 0,
+            fontSize: 12,
           },
         },
         yAxis: {
-          name: props.yAxisLabel, // 使用自定义的 y 轴标签
+          name: props.yAxisLabel,
           type: 'value',
           nameTextStyle: {
-            fontSize: 12, // 设置y轴名称的字体大小
+            fontSize: 12,
           },
           axisLabel: {
-            formatter: '{value}', // 格式化y轴标签
+            formatter: '{value}',
           }
         },
         series: [
           {
-            name: props.chartTitle,
+            name: seriesName,
             type: 'bar',
-            data: props.chartData.map((item) => item.value),
+            data: seriesData[0] || [], // 如果只有一个系列，使用单个数据项
             label: {
               show: true,  // 显示每个柱子的值
               position: 'top',  // 数值显示在柱子顶部
-              fontSize: 10, // 字体大小
-              color: '#666',  // 字体颜色
+              fontSize: 10,
+              color: '#666',
+            },
+            itemStyle: {
+              // 根据每个项的type来动态设置颜色
+              color: (params) => {
+                const type = props.chartData[params.dataIndex].type;
+                return colorMap[type] || '#91cc75';
+              },
             },
           },
         ],
       };
 
       chartInstance.setOption(options);
+      chartInstance.resize();  // 确保图表在加载后立即自适应容器大小
     }
   });
 };
 
-// 初始化图表
 onMounted(() => {
   initChart();
 });
 
-// 监听数据变化，更新图表
 watch(
     () => props.chartData,
     (newData) => {
@@ -107,7 +156,6 @@ watch(
     }
 );
 
-// 在窗口大小变化时重新调整图表
 window.addEventListener('resize', () => {
   if (chartInstance) {
     chartInstance.resize();
@@ -116,8 +164,9 @@ window.addEventListener('resize', () => {
 </script>
 
 <style scoped>
-/* 可以为图表容器添加样式 */
 .chart-container {
-  /* 可以为图表容器添加样式 */
+  width: 100%;
+  height: 100%;
+  position: relative;
 }
 </style>

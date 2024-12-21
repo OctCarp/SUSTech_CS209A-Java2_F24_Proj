@@ -40,15 +40,14 @@
     </div>
 
     <div v-if="shouldUpdate" class="chart-container">
-      <!-- 使用 BarChart 组件，并传入自定义配置 -->
       <div class="chart-item">
         <div class="chart-title-container">
           <h2>{{ chartTitle }}</h2>
         </div>
         <BarChart
-            :xAxisLabel="xAxisLabel"
-            :yAxisLabel="yAxisLabel"
-            :chartData="data"
+          :xAxisLabel="xAxisLabel"
+          :yAxisLabel="yAxisLabel"
+          :chartData="data"
         />
       </div>
     </div>
@@ -86,63 +85,49 @@ const endDateText = ref('');
 const startDateDialog = ref(false);
 const endDateDialog = ref(false);
 
-// 自定义图表标题和轴标签
 const chartTitle = ref(`最高频的${numTopics.value}个话题`);
 const xAxisLabel = ref('话题');
 const yAxisLabel = ref('频率');
 
 let data = ref([]);
-const chartData = ref([
-  { name: '面向对象编程', value: 25, date: '2024-01-01' },
-  { name: 'Spring 框架', value: 20, date: '2024-02-01' },
-  { name: '异常处理', value: 15, date: '2024-03-01' },
-  { name: '并发与多线程', value: 12, date: '2024-04-01' },
-  { name: '流与 Lambda', value: 10, date: '2024-05-01' },
-  { name: 'Hibernate / JPA', value: 8, date: '2024-06-01' },
-  { name: '设计模式', value: 7, date: '2024-07-01' },
-  { name: 'JVM 内部机制', value: 5, date: '2024-08-01' },
-  { name: '垃圾回收', value: 4, date: '2024-09-01' },
-  { name: 'Git 和版本控制', value: 3, date: '2024-10-01' },
-]);
 
 const options = [
   { value: 5, label: '5个' },
   { value: 10, label: '10个' },
   { value: 15, label: '15个' },
-  { value: 20, label: '20个' },
 ];
 
-// 根据选择的日期范围和话题数量进行过滤
-const filteredChartData = computed(() => {
-  if (!numTopics.value) return []; // 如果 numTopics 为空，返回空数组
-
-  // 排序数据：按频率从高到低
-  const sortedData = [...chartData.value].sort((a, b) => b.value - a.value);
-
-  // 根据用户选择的数量截取数据
-  return sortedData.slice(0, numTopics.value);
-});
-
-// 查询按钮的点击事件，显示数据
 const fetchData = async () => {
   shouldUpdate.value = true;
-  data.value = filteredChartData.value;
   chartTitle.value = `最高频的${numTopics.value}个话题`;
 
-  // try {
-  //   const response = await fetchTopTopicData(numTopics.value, startDate.value, endDate.value);
-  //   data.value = response.data.sort((a, b) => b.frequency - a.frequency);
-  // } catch (error) {
-  //   console.error('获取数据失败:', error);
-  // }
+  try {
+    // 将 startDate 和 endDate 转换为 Unix 时间戳（毫秒）
+    const startTimestamp = startDate.value ? startDate.value.getTime() : null;
+    const endTimestamp = endDate.value ? endDate.value.getTime() : null;
+
+    const response = await fetchTopTopicData(numTopics.value, startTimestamp, endTimestamp);
+    if (Array.isArray(response)) {
+      data.value = response.map(item => ({
+        name: item.topicName,
+        value: item.frequency,
+        type: 'TOPIC',
+      })).sort((a, b) => b.value - a.value);
+    } else {
+      console.error("返回的数据格式不正确", response);
+      data.value = [];
+    }
+  } catch (error) {
+    console.error('获取数据失败:', error);
+    data.value = [];
+  }
 };
 
-// 收起按钮的点击事件，恢复默认值并隐藏图表
 const collapse = () => {
+  shouldUpdate.value = false;
   numTopics.value = '';
   startDate.value = null;
   endDate.value = null;
-  shouldUpdate.value = false;
   data.value = [];
 };
 
@@ -200,9 +185,8 @@ h1 {
 }
 
 .chart-item {
-  flex: 1;
-  max-width: 60%;
-  min-width: 400px;
+  max-width: 90%;
+  min-width: 600px;
   height: 400px;
   box-sizing: border-box;
 }
