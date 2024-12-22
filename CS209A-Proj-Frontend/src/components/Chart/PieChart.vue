@@ -1,5 +1,7 @@
 <template>
-  <div ref="chartRef" style="width: 100%; height: 300px;"></div>
+  <div class="chart-container">
+    <div ref="chartRef" style="width: 100%; height: 300px;"></div>
+  </div>
 </template>
 
 <script setup>
@@ -25,7 +27,7 @@ const initChart = () => {
       const options = {
         tooltip: {
           trigger: 'item',
-          formatter: '{a} <br/>{b} : {c} ({d}%)', // 格式化提示框内容
+          formatter: '{b} : {c} ({d}%)', // 格式化提示框内容
         },
         legend: {
           top: '5%',
@@ -35,7 +37,7 @@ const initChart = () => {
           {
             type: 'pie',
             radius: ['40%', '70%'], // 设置饼图的内外半径
-            center: ['50%', '55%'], // 将饼图居中
+            center: ['50%', '50%'], // 将饼图居中
             avoidLabelOverlap: false,
             padAngle: 5,
             itemStyle: {
@@ -109,5 +111,9 @@ window.addEventListener('resize', () => {
 </script>
 
 <style scoped>
-/* 可根据需要为图表容器添加样式 */
+.chart-container {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
 </style>

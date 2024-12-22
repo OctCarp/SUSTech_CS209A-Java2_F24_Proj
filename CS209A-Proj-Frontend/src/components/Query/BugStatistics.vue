@@ -110,7 +110,8 @@ const fetchAllBugNameData = async () => {
     if (response && Array.isArray(response)) {
       bugOptions.value = response.map((item) => ({
         title: item.bugName,
-      }));
+      }))
+      .sort((a, b) => a.title.localeCompare(b.title));
     }
   } catch (error) {
     console.error("获取所有故障失败:", error);

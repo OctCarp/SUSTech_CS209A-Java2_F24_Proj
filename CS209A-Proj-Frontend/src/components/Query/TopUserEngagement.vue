@@ -3,66 +3,33 @@
     <h1>高用户参与度话题</h1>
 
     <div class="select-container">
-      <div class="filter-container">
-        <!-- 第一行：开始日期和结束日期 -->
-        <div class="date-picker-container">
-          <v-text-field
-              v-model="startDateText"
-              label="开始日期"
-              prepend-inner-icon="mdi-calendar"
-              readonly
-              clearable
-              color="primary"
-              @click="startDateDialog = true"
-              class="date-picker"
-          ></v-text-field>
+      <v-select
+          v-model="numTopics"
+          :items="options"
+          label="选择显示话题个数"
+          item-title="label"
+          item-value="value"
+          variant="outlined"
+          class="topic-select"
+      />
 
-          <v-text-field
-              v-model="endDateText"
-              label="结束日期"
-              prepend-inner-icon="mdi-calendar"
-              readonly
-              clearable
-              color="primary"
-              @click="endDateDialog = true"
-              class="date-picker"
-          ></v-text-field>
-        </div>
+      <v-text-field
+          v-model="minReputation"
+          label="用户最低声望值(默认为0)"
+          variant="outlined"
+          clearable
+          color="primary"
+          placeholder="0"
+          class="reputation-input"
+          type="number"
+          @blur="validateReputation"
+          :error-messages="reputationErrorMessages"
+      />
 
-        <!-- 第二行：话题个数选择框和声望值输入框 -->
-        <div class="topic-reputation-container">
-          <v-select
-              v-model="numTopics"
-              :items="options"
-              label="选择显示话题个数"
-              item-title="label"
-              item-value="value"
-              variant="outlined"
-              class="topic-select"
-          />
-
-          <v-text-field
-              v-model="minReputation"
-              label="用户最低声望值(默认为0)"
-              variant="outlined"
-              clearable
-              color="primary"
-              placeholder="0"
-              class="reputation-input"
-              type="number"
-              @blur="validateReputation"
-              :error-messages="reputationErrorMessages"
-          />
-        </div>
-      </div>
-
-      <!-- 查询按钮放在右侧并垂直居中 -->
-      <div class="query-button-container">
-        <v-btn @click="fetchData" :disabled="!numTopics || reputationErrorMessages.length > 0" size="large" color="primary" class="query-button">
-          <v-icon icon="mdi-magnify"></v-icon>
-          查询
-        </v-btn>
-      </div>
+      <v-btn @click="fetchData" :disabled="!numTopics || reputationErrorMessages.length > 0" size="large" color="primary" class="query-button">
+        <v-icon icon="mdi-magnify"></v-icon>
+        查询
+      </v-btn>
     </div>
 
     <div v-if="shouldUpdate" class="chart-container">
@@ -84,14 +51,6 @@
         收起
       </v-btn>
     </div>
-
-    <v-dialog v-model="startDateDialog" max-width="290px">
-      <v-date-picker v-model="startDate" @input="startDateDialog = false" :max="endDate" color="primary"></v-date-picker>
-    </v-dialog>
-
-    <v-dialog v-model="endDateDialog" max-width="290px">
-      <v-date-picker v-model="endDate" @input="endDateDialog = false" :min="startDate" color="primary"></v-date-picker>
-    </v-dialog>
   </div>
 </template>
 
@@ -103,12 +62,6 @@ import { fetchTopTopicEngagementData } from "@/services/api.js";
 const shouldUpdate = ref(false);
 const numTopics = ref("");
 const minReputation = ref(0);
-const startDateText = ref('');
-const endDateText = ref('');
-const startDate = ref(null);
-const endDate = ref(null);
-const startDateDialog = ref(false);
-const endDateDialog = ref(false);
 
 const chartTitle = ref(`用户参与度最高的${numTopics.value}个话题`);
 const xAxisLabel = ref('话题');
@@ -135,11 +88,7 @@ const fetchData = async () => {
   chartTitle.value = `用户参与度最高的${numTopics.value}个话题`;
 
   try {
-    // 将 startDate 和 endDate 转换为 Unix 时间戳（毫秒）
-    const startTimestamp = startDate.value ? startDate.value.getTime() : null;
-    const endTimestamp = endDate.value ? endDate.value.getTime() : null;
-
-    const response = await fetchTopTopicEngagementData(numTopics.value, minReputation.value, startTimestamp, endTimestamp);
+    const response = await fetchTopTopicEngagementData(numTopics.value, minReputation.value);
     if (Array.isArray(response)) {
       data.value = response.map(item => ({
         name: item.topicName,
@@ -162,12 +111,10 @@ const collapse = () => {
   shouldUpdate.value = false;
 };
 
-// 更新选择日期的文本显示
-watch(startDate, (newDate) => {
-  startDateText.value = newDate ? newDate.toLocaleDateString() : '';
-});
-watch(endDate, (newDate) => {
-  endDateText.value = newDate ? newDate.toLocaleDateString() : '';
+watch(minReputation, (newValue) => {
+  if (newValue === '' || newValue === null) {
+    minReputation.value = 0; // 自动设为0
+  }
 });
 </script>
 
@@ -184,24 +131,8 @@ h1 {
 
 .select-container {
   display: flex;
-  gap: 15px;
-  margin-bottom: 20px;
-}
-
-.filter-container {
-  width: 100%;
-}
-
-.date-picker-container,
-.topic-reputation-container {
-  display: flex;
   justify-content: space-between;
-  align-items: center;
-}
-
-.date-picker {
-  width: 140px;
-  margin-right: 20px;
+  margin-bottom: 20px;
 }
 
 .topic-select {
@@ -214,13 +145,8 @@ h1 {
   margin-right: 20px;
 }
 
-.query-button-container {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-}
-
 .query-button {
+  margin-top: 5px;
 }
 
 .toggle-button-container {

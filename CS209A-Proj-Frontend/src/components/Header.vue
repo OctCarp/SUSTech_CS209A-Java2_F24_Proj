@@ -5,7 +5,7 @@
     </a>
 
     <div class="header-right">
-      <span class="title">数据分析</span>
+      <span class="title">Java 数据分析</span>
     </div>
 
     <a href="https://github.com/OctCarp/SUSTech_CS209A-Java2_F24_Proj/" target="_blank" class="link">

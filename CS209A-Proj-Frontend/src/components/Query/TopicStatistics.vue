@@ -110,7 +110,8 @@ const fetchAllTopicNameData = async () => {
     if (response && Array.isArray(response)) {
       topicOptions.value = response.map((item) => ({
         title: item.topicName,
-      }));
+      }))
+      .sort((a, b) => a.title.localeCompare(b.title));
     }
   } catch (error) {
     console.error("获取所有话题失败:", error);

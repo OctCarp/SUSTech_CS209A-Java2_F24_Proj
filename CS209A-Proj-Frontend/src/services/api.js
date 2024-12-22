@@ -37,11 +37,10 @@ export const fetchTopBugData = async (numBugs, bugType, startDate, endDate) => {
 
 // 获取话题详细数据
 export const fetchTopicStatisticsData = async (topicName, startDate, endDate) => {
-    const url = `${serverUrl}/topics/name/{topic-name}/statistics?topic-name=${topicName}`;
+    const url = `${serverUrl}/topics/name/${topicName}/statistics`;
     // const url = `${serverUrl}/topics/name/{topic-name}/statistics?topic-name=${topicName}&start_date=${startDate}&end_date=${endDate}`;
     try {
         const response = await apiClient.get(url);
-        console.log(response)
         return response.data;
     } catch (err) {
         console.error("API 请求失败:", err);
@@ -51,7 +50,7 @@ export const fetchTopicStatisticsData = async (topicName, startDate, endDate) =>
 
 // 获取故障详细数据
 export const fetchBugStatisticsData = async (bugName, startDate, endDate) => {
-    const url = `${serverUrl}/bugs/name/{bug-name}/statistics?bug-name=${bugName}`;
+    const url = `${serverUrl}/bugs/name/${bugName}/statistics`;
     // const url = `${serverUrl}/bugs/name/{bug-name}/statistics?bug-name=${bugName}&start_date=${startDate}&end_date=${endDate}`;
     try {
         const response = await apiClient.get(url);
@@ -77,8 +76,6 @@ export const fetchAnswerQualityData = async () => {
     const url = `${serverUrl}/answers/all/quality/static`;
     try {
         const response = await apiClient.get(url);
-        console.log(response)
-        console.log(response.data)
         return response.data;
     } catch (err) {
         console.error("API 请求失败:", err);
@@ -90,7 +87,6 @@ export const fetchAllTopicName = async () => {
     const url = `${serverUrl}/topics/all/brief`;
     try {
         const response = await apiClient.get(url);
-        console.log(response)
         return response.data;
     } catch (err) {
         console.error("API 请求失败:", err);
@@ -102,7 +98,6 @@ export const fetchAllBugName = async () => {
     const url = `${serverUrl}/bugs/top/frequency/brief`;
     try {
         const response = await apiClient.get(url);
-        console.log(response)
         return response.data;
     } catch (err) {
         console.error("API 请求失败:", err);

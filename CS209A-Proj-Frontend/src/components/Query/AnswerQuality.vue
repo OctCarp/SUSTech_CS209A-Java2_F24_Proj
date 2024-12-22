@@ -11,20 +11,35 @@
 
     <div v-if="shouldUpdate">
       <div class="stats">
-        <div class="stat-card" >
+        <div class="stat-card">
           <h4>总答案数</h4>
           <p>{{ data.length }}</p>
         </div>
       </div>
 
-      <div  class="chart-container">
+      <div class="chart-container">
+        <!-- 饼状图 -->
+        <div class="chart-item-pie">
+          <div class="chart-title-container">
+            <h2>答案质量分布</h2>
+          </div>
+          <PieChart :chartData="pieChartData" />
+        </div>
+
+        <!-- 热力图 -->
         <div class="chart-item">
           <div class="chart-title-container">
-            <h2>{{ chartTitle }}</h2>
+            <h2>答案质量相关性热力图</h2>
           </div>
-          <PieChart
-              :chartData="pieChartData"
-          />
+          <HeatMap :chartData="heatMapData" :label-data="labels" />
+        </div>
+
+        <!-- 三维散点图 -->
+        <div class="chart-item">
+          <div class="chart-title-container">
+            <h2>答案质量散点图</h2>
+          </div>
+          <ScatterChart :chartData="scatterChartData" />
         </div>
       </div>
     </div>
@@ -35,31 +50,49 @@
         收起
       </v-btn>
     </div>
-
-
   </div>
 </template>
 
 <script setup>
-import {computed, ref, watch} from 'vue';
+import { ref } from 'vue';
 import PieChart from "@/components/Chart/PieChart.vue";
+import HeatMap from "@/components/Chart/HeatMap.vue";
+import ScatterChart from "@/components/Chart/ScatterChart.vue";
 import { fetchAnswerQualityData } from "@/services/api.js";
 
 let shouldUpdate = ref(false);
 
-const chartTitle = ref('答案质量分布');
 const pieChartData = ref([]);
+const heatMapData = ref([]);
+const scatterChartData = ref([]);
+
+const labels = ['答案质量', '答案长度', '作答用户采纳率', '作答用户名誉', '作答时间'];
 
 let data = ref([]);
 
 const fetchData = async () => {
   shouldUpdate.value = true;
-  chartTitle.value = '答案质量分布';
 
   try {
     const response = await fetchAnswerQualityData();
     if (Array.isArray(response)) {
-      data.value = response;
+      data.value = response.map(item => {
+        // 如果 ownerAcceptRate 为 -1，设置为 0
+        if (item.ownerAcceptRate === -1) {
+          item.ownerAcceptRate = 0;
+        }
+        return item;
+      }).filter(item =>
+          item && item.qualityLevel &&
+          item.answerLength !== undefined &&
+          item.ownerAcceptRate !== undefined &&
+          item.ownerReputation !== undefined &&
+          item.responseSeconds !== undefined &&
+          item.answerLength >= 0 &&
+          item.ownerAcceptRate >= 0 &&
+          item.ownerReputation >= 0 &&
+          item.responseSeconds >= 0
+      );
       updateStats();
     } else {
       console.error("返回的数据格式不正确", response);
@@ -74,6 +107,7 @@ const fetchData = async () => {
 const updateStats = () => {
   const qualityCounts = { EXCELLENT: 0, GOOD: 0, FAIR: 0, POOR: 0 };
   let totalCount = 0;
+  const fields = ["qualityLevelNum", "answerLength", "ownerAcceptRate", "ownerReputation", "responseSeconds"];
 
   if (data.value) {
     data.value.forEach(item => {
@@ -86,7 +120,68 @@ const updateStats = () => {
       name: key,
       value: qualityCounts[key],
     }));
+
+    // 计算相关性矩阵
+    const qualityLevelMap = {
+      EXCELLENT: 3,
+      GOOD: 2,
+      FAIR: 1,
+      POOR: 0
+    };
+
+    data.value = data.value.map(item => ({
+      ...item,
+      qualityLevelNum: qualityLevelMap[item.qualityLevel]
+    }));
+
+    const correlations = {};
+
+    // 计算每对字段之间的相关性
+    fields.forEach(field1 => {
+      correlations[field1] = {};
+      fields.forEach(field2 => {
+        const values1 = data.value.map(item => item[field1]);
+        const values2 = data.value.map(item => item[field2]);
+
+        // 计算两个字段之间的皮尔逊相关系数
+        correlations[field1][field2] = calculateCorrelation(values1, values2);
+      });
+    });
+
+    // 将相关性矩阵转换为热力图数据
+    heatMapData.value = Object.keys(correlations).map((label1, i) => {
+      return Object.keys(correlations).map((label2, j) => {
+        return {
+          xlabel: label1,
+          ylabel: label2,
+          x: i,
+          y: j,
+          value: Number(correlations[label1][label2].toFixed(3))
+        };
+      });
+    }).flat();
+
+    // 将数据转换为散点图数据
+    scatterChartData.value = data.value.map(item => [
+      item.answerLength,
+      item.ownerReputation,
+      item.qualityLevelNum,
+    ]);
   }
+};
+
+const calculateCorrelation = (x, y) => {
+  const n = x.length;
+  const avgX = x.reduce((sum, val) => sum + val, 0) / n;
+  const avgY = y.reduce((sum, val) => sum + val, 0) / n;
+
+  const numerator = x.reduce((sum, xi, i) => sum + (xi - avgX) * (y[i] - avgY), 0);
+  const denominator = Math.sqrt(
+      x.reduce((sum, xi) => sum + Math.pow(xi - avgX, 2), 0) *
+      y.reduce((sum, yi) => sum + Math.pow(yi - avgY, 2), 0)
+  );
+
+  return denominator === 0 ? 0 : numerator / denominator;
 };
 
 const collapse = () => {
@@ -159,15 +254,27 @@ h1 {
 
 .chart-container {
   display: flex;
+  flex-direction: column;
   justify-content: center;
   gap: 20px;
+  margin-bottom: 100px;
+}
+
+.chart-item-pie {
+  max-width: 100%;
+  min-width: 500px;
+  height: 400px;
+  box-sizing: border-box;
+  justify-content: center;
 }
 
 .chart-item {
   max-width: 100%;
-  min-width: 600px;
-  height: 400px;
+  min-width: 500px;
+  height: 500px;
   box-sizing: border-box;
+  justify-content: center;
+  margin-bottom: 20px;
 }
 
 .chart-title-container {
