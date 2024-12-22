@@ -9,14 +9,23 @@
       </v-btn>
     </div>
 
-    <div v-if="shouldUpdate" class="chart-container">
-      <div class="chart-item">
-        <div class="chart-title-container">
-          <h2>{{ chartTitle }}</h2>
+    <div v-if="shouldUpdate">
+      <div class="stats">
+        <div class="stat-card" >
+          <h4>总答案数</h4>
+          <p>{{ data.length }}</p>
         </div>
-        <PieChart
-            :chartData="pieChartData"
-        />
+      </div>
+
+      <div  class="chart-container">
+        <div class="chart-item">
+          <div class="chart-title-container">
+            <h2>{{ chartTitle }}</h2>
+          </div>
+          <PieChart
+              :chartData="pieChartData"
+          />
+        </div>
       </div>
     </div>
 
@@ -104,11 +113,6 @@ h1 {
   margin-bottom: 20px;
 }
 
-.topic-select {
-  width: 120px;
-  margin-right: 20px;
-}
-
 .query-button {
   margin-top: 5px;
   margin-left: auto;
@@ -122,6 +126,37 @@ h1 {
   z-index: 10;
 }
 
+.stats {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 25px;
+  margin-top: 30px;
+  margin-bottom: 25px;
+}
+
+.stat-card {
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 15px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  font-size: 18px;
+  width: 150px;
+}
+
+.stat-card h4 {
+  font-size: 16px;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.stat-card p {
+  font-size: 20px;
+  font-weight: bold;
+  color: #3498db;
+}
+
 .chart-container {
   display: flex;
   justify-content: center;
@@ -129,7 +164,7 @@ h1 {
 }
 
 .chart-item {
-  max-width: 90%;
+  max-width: 100%;
   min-width: 600px;
   height: 400px;
   box-sizing: border-box;

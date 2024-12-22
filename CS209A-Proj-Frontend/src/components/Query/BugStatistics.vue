@@ -1,6 +1,6 @@
 <template>
   <div class="error-statistics">
-    <h1>故障详细信息</h1>
+    <h1>错误/异常详细信息</h1>
 
     <div class="select-container">
       <v-text-field
@@ -8,6 +8,7 @@
           label="开始日期"
           prepend-inner-icon="mdi-calendar"
           readonly
+          clearable
           color="primary"
           @click="startDateDialog = true"
           class="date-picker"
@@ -18,6 +19,7 @@
           label="结束日期"
           prepend-inner-icon="mdi-calendar"
           readonly
+          clearable
           color="primary"
           @click="endDateDialog = true"
           class="date-picker"
@@ -26,12 +28,14 @@
       <v-autocomplete
           v-model="bugName"
           :items="bugOptions"
-          label="输入故障名称"
+          label="输入错误/异常名称"
           density="comfortable"
           menu-icon=""
           variant="outlined"
+          clearable
           auto-select-first
           item-props
+          :no-data-text="'错误/异常不存在'"
           class="input-topic"
       ></v-autocomplete>
 

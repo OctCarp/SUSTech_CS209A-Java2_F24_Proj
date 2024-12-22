@@ -32,7 +32,8 @@
 .text {
   flex: 1;
   padding-right: 20px;
-  margin-right: 10%;
+  margin-right: 120px;
+  margin-left: 20px;
 }
 
 .title {

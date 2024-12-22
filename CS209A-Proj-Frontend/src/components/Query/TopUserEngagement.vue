@@ -11,6 +11,7 @@
               label="开始日期"
               prepend-inner-icon="mdi-calendar"
               readonly
+              clearable
               color="primary"
               @click="startDateDialog = true"
               class="date-picker"
@@ -21,6 +22,7 @@
               label="结束日期"
               prepend-inner-icon="mdi-calendar"
               readonly
+              clearable
               color="primary"
               @click="endDateDialog = true"
               class="date-picker"
@@ -41,18 +43,22 @@
 
           <v-text-field
               v-model="minReputation"
-              label="最低声望值(默认为0)"
+              label="用户最低声望值(默认为0)"
               variant="outlined"
+              clearable
               color="primary"
               placeholder="0"
               class="reputation-input"
+              type="number"
+              @blur="validateReputation"
+              :error-messages="reputationErrorMessages"
           />
         </div>
       </div>
 
       <!-- 查询按钮放在右侧并垂直居中 -->
       <div class="query-button-container">
-        <v-btn @click="fetchData" :disabled="!numTopics" size="large" color="primary" class="query-button">
+        <v-btn @click="fetchData" :disabled="!numTopics || reputationErrorMessages.length > 0" size="large" color="primary" class="query-button">
           <v-icon icon="mdi-magnify"></v-icon>
           查询
         </v-btn>
@@ -90,34 +96,40 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue';
+import { ref, watch } from 'vue';
 import BarChart from '../Chart/BarChart.vue';
-import { fetchTopTopicData, fetchTopTopicEngagementData } from "@/services/api.js";
+import { fetchTopTopicEngagementData } from "@/services/api.js";
 
 const shouldUpdate = ref(false);
 const numTopics = ref("");
 const minReputation = ref(0);
-
-const startDate = ref(null);
-const endDate = ref(null);
 const startDateText = ref('');
 const endDateText = ref('');
+const startDate = ref(null);
+const endDate = ref(null);
 const startDateDialog = ref(false);
 const endDateDialog = ref(false);
 
 const chartTitle = ref(`用户参与度最高的${numTopics.value}个话题`);
 const xAxisLabel = ref('话题');
 const yAxisLabel = ref('用户参与度');
-
 let data = ref([]);
-
 const options = [
   { value: 5, label: '5个' },
   { value: 10, label: '10个' },
   { value: 15, label: '15个' },
 ];
 
-// 查询按钮的点击事件，显示数据
+const reputationErrorMessages = ref([]);
+
+const validateReputation = () => {
+  reputationErrorMessages.value = [];
+
+  if (minReputation.value < 0) {
+    reputationErrorMessages.value.push('用户最低声望值不能低于0');
+  }
+};
+
 const fetchData = async () => {
   shouldUpdate.value = true;
   chartTitle.value = `用户参与度最高的${numTopics.value}个话题`;
@@ -202,11 +214,10 @@ h1 {
   margin-right: 20px;
 }
 
-/* 将查询按钮放置在右侧并垂直居中 */
 .query-button-container {
   display: flex;
-  justify-content: flex-end; /* 右侧对齐 */
-  align-items: center; /* 垂直居中 */
+  justify-content: flex-end;
+  align-items: center;
 }
 
 .query-button {

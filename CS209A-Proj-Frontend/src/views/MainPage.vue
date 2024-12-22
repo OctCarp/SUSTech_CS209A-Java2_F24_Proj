@@ -30,7 +30,7 @@ import Statistics from "@/components/Statistics.vue";
 
 /* 内容区域，调整顶部内边距，避免被 Header 遮挡 */
 .content {
-  margin-top: 80px; /* 留出 Header 的空间，确保不被遮挡 */
+  margin-top: 100px; /* 留出 Header 的空间，确保不被遮挡 */
   position: absolute;
   top: 0;
   left: 5%;

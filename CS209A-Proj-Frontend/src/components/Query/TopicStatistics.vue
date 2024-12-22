@@ -8,6 +8,7 @@
           label="开始日期"
           prepend-inner-icon="mdi-calendar"
           readonly
+          clearable
           color="primary"
           @click="startDateDialog = true"
           class="date-picker"
@@ -18,6 +19,7 @@
           label="结束日期"
           prepend-inner-icon="mdi-calendar"
           readonly
+          clearable
           color="primary"
           @click="endDateDialog = true"
           class="date-picker"
@@ -30,8 +32,10 @@
           density="comfortable"
           menu-icon=""
           variant="outlined"
+          clearable
           auto-select-first
           item-props
+          :no-data-text="'话题不存在'"
           class="input-topic"
       ></v-autocomplete>
 

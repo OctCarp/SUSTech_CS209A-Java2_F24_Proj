@@ -1,6 +1,6 @@
 <template>
   <div class="top-errors">
-    <h1>高频故障</h1>
+    <h1>高频错误/异常</h1>
 
     <div class="select-container">
       <v-text-field
@@ -8,6 +8,7 @@
           label="开始日期"
           prepend-inner-icon="mdi-calendar"
           readonly
+          clearable
           color="primary"
           @click="startDateDialog = true"
           class="date-picker"
@@ -18,6 +19,7 @@
           label="结束日期"
           prepend-inner-icon="mdi-calendar"
           readonly
+          clearable
           color="primary"
           @click="endDateDialog = true"
           class="date-picker"
@@ -26,7 +28,7 @@
       <v-select
           v-model="numBugs"
           :items="options"
-          label="选择显示错误个数"
+          label="选择错误/异常个数"
           item-title="label"
           item-value="value"
           variant="outlined"
