@@ -3,6 +3,7 @@ package io.github.octcarp.sustech.cs209a.proj.apijava.controller;
 import io.github.octcarp.sustech.cs209a.proj.apijava.exception.BadRequestException;
 import io.github.octcarp.sustech.cs209a.proj.apijava.service.ApiTopicService;
 import io.github.octcarp.sustech.cs209a.proj.apijava.vo.response.basic.TopicBriefVO;
+import io.github.octcarp.sustech.cs209a.proj.apijava.vo.response.basic.TopicFreqVO;
 import io.github.octcarp.sustech.cs209a.proj.apijava.vo.response.compound.TopicEngagementVO;
 import io.github.octcarp.sustech.cs209a.proj.apijava.vo.response.compound.TopicStatisticsVO;
 import io.github.octcarp.sustech.cs209a.proj.database.entity.TopicPO;
@@ -60,5 +61,20 @@ public class TopicController {
             throw new BadRequestException("Invalid limit");
         }
         return apiTopicService.getTopFrequencyTopics(limit);
+    }
+
+    @GetMapping("/top/frequency/time")
+    public List<TopicFreqVO> getTopFrequencyTopics(
+        @RequestParam(required = false, defaultValue = "10") Long limit,
+        @RequestParam(required = false, defaultValue = "0") Long startSecond,
+        @RequestParam(required = false, defaultValue = "1735660800") Long endSecond
+    ) {
+        if (limit <= 0) {
+            throw new BadRequestException("Invalid limit");
+        }
+        LocalDateTime startDateTime, endDateTime;
+        startDateTime = LocalDateTime.ofEpochSecond(startSecond, 0, ZoneOffset.UTC);
+        endDateTime = LocalDateTime.ofEpochSecond(endSecond, 0, ZoneOffset.UTC);
+        return apiTopicService.getTopFrequencyTopicsWithTime(limit, startDateTime, endDateTime);
     }
 }

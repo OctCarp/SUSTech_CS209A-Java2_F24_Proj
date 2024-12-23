@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.github.octcarp.sustech.cs209a.proj.apijava.mapper.UserAnalysisMapper">
+
+    <resultMap id="ReputationResultMap"
+               type="io.github.octcarp.sustech.cs209a.proj.apijava.dto.basic.UserReputationDistribution">
+        <result column="reputation" property="reputation"/>
+        <result column="count" property="count"/>
+    </resultMap>
+    <select id="getUserReputationDistribution" resultMap="ReputationResultMap">
+        SELECT
+            reputation,
+            COUNT(*) as count
+        FROM Users
+        GROUP BY reputation
+        ORDER BY reputation
+    </select>
+
+</mapper>

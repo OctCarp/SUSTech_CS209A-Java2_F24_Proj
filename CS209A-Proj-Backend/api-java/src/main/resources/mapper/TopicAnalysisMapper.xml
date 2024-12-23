@@ -133,5 +133,20 @@
         FROM topic_engagement
     </select>
 
+    <resultMap id="TopicFreqResultMap" type="io.github.octcarp.sustech.cs209a.proj.apijava.vo.response.basic.TopicFreqVO">
+        <result column="topic_name" property="topicName"/>
+        <result column="frequency" property="frequency"/>
+    </resultMap>
+
+    <select id="getTopFrequencyTopicsWithTime" resultMap="TopicFreqResultMap">
+        SELECT t.topic_id, t.topic_name, t.frequency
+        FROM Topics t
+                 INNER JOIN Post_Topics pt ON t.topic_id = pt.topic_id
+                 INNER JOIN Questions q ON pt.post_id = q.question_id
+        WHERE q.creation_date BETWEEN #{startTime} AND #{endTime}
+        GROUP BY t.topic_id, t.topic_name, t.frequency
+        ORDER BY t.frequency DESC
+        LIMIT #{limit}
+    </select>
 
 </mapper>

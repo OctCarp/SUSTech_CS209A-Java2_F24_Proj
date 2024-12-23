@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import io.github.octcarp.sustech.cs209a.proj.apijava.mapper.TopicAnalysisMapper;
 import io.github.octcarp.sustech.cs209a.proj.apijava.dto.attached.TopicStatistics;
 import io.github.octcarp.sustech.cs209a.proj.apijava.vo.response.basic.TopicBriefVO;
+import io.github.octcarp.sustech.cs209a.proj.apijava.vo.response.basic.TopicFreqVO;
 import io.github.octcarp.sustech.cs209a.proj.apijava.vo.response.compound.TopicEngagementVO;
 import io.github.octcarp.sustech.cs209a.proj.apijava.vo.response.compound.TopicStatisticsVO;
 import io.github.octcarp.sustech.cs209a.proj.database.entity.TopicPO;
@@ -59,12 +60,22 @@ public class ApiTopicService {
 
     }
 
-    public List<TopicPO> getTopFrequencyTopics(Long limit) {
+    public List<TopicPO> getTopFrequencyTopics(
+        Long limit
+    ) {
         QueryWrapper<TopicPO> queryWrapper = new QueryWrapper<>();
         queryWrapper.orderByDesc("frequency");
-
         queryWrapper.last("LIMIT " + limit);
 
         return topicService.getBaseMapper().selectList(queryWrapper);
     }
+
+    public List<TopicFreqVO> getTopFrequencyTopicsWithTime(
+        Long limit,
+        LocalDateTime startTime,
+        LocalDateTime endTime
+    ) {
+        return topicAnalysisMapper.getTopFrequencyTopicsWithTime(limit, startTime, endTime);
+    }
+
 }
