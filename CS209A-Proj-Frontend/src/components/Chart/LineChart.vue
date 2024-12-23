@@ -1,5 +1,7 @@
 <template>
-  <div ref="chartRef" style="width: 100%; height: 400px;"></div>
+  <div class="chart-container">
+    <div ref="chartRef" style="width: 100%; height: 300px;"></div>
+  </div>
 </template>
 
 <script setup>
@@ -8,10 +10,6 @@ import * as echarts from 'echarts';
 
 // 定义传入的 props
 const props = defineProps({
-  chartTitle: {
-    type: String,
-    required: true,
-  },
   xAxisLabel: {
     type: String,
     required: true,
@@ -36,37 +34,61 @@ const initChart = () => {
       chartInstance = echarts.init(chartRef.value);
 
       const options = {
-        title: {
-          text: props.chartTitle,  // 使用自定义的图表标题
-          left: 'center',
-        },
         tooltip: {
           trigger: 'axis',
+          formatter: (params) => {
+            const point = params[0];
+            return `Reputation: ${point.data[0]}<br>Count: ${point.data[1]}`;
+          },
+        },
+        grid: {
+          left: '15%',
+          right: '15%',
+          bottom: '20%',
+          top: '10%',
         },
         xAxis: {
-          type: 'category',
-          data: props.chartData.map((item) => item.name),
-          axisLabel: {
-            rotate: 45,  // 旋转标签
-            margin: 10,  // 调整标签与轴的距离
-          }
-        },
-        yAxis: {
-          name: props.yAxisLabel,  // 使用自定义的 y 轴标签
-          type: 'value',
+          name: props.xAxisLabel,
+          type: 'log', // 使用对数坐标
+          logBase: 10, // 基数为 10
           nameTextStyle: {
-            fontSize: 14, // 设置y轴名称的字体大小
+            fontSize: 12,
           },
           axisLabel: {
-            formatter: '{value}', // 格式化y轴标签
-          }
+            formatter: '{value}', // 格式化 x 轴标签
+          },
         },
+        yAxis: {
+          name: props.yAxisLabel,
+          type: 'value',
+          nameTextStyle: {
+            fontSize: 12,
+          },
+          axisLabel: {
+            formatter: '{value}', // 格式化 y 轴标签
+          },
+        },
+        dataZoom: [
+          {
+            type: 'slider',
+            show: true,
+            xAxisIndex: 0,
+            start: 0, // 显示数据的起始百分比
+            end: 0.01, // 显示数据的结束百分比
+            bottom: 10,
+          },
+        ],
         series: [
           {
-            name: props.chartTitle,
-            type: 'line',  // 使用 line 类型
-            data: props.chartData.map((item) => item.value),
-            smooth: true,  // 平滑曲线
+            name: 'User Count',
+            type: 'line',
+            data: props.chartData.map((item) => [item.reputation, item.count]),
+            smooth: true, // 平滑曲线
+            symbol: 'none', // 隐藏点标记
+            sampling: 'average', // 数据采样以提高性能
+            lineStyle: {
+              width: 2,
+            },
           },
         ],
       };
@@ -87,12 +109,9 @@ watch(
     (newData) => {
       if (chartInstance) {
         chartInstance.setOption({
-          xAxis: {
-            data: newData.map((item) => item.name),
-          },
           series: [
             {
-              data: newData.map((item) => item.value),
+              data: newData.map((item) => [item.reputation, item.count]),
             },
           ],
         });
@@ -109,5 +128,9 @@ window.addEventListener('resize', () => {
 </script>
 
 <style scoped>
-/* 可以为图表容器添加样式 */
+.chart-container {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
 </style>

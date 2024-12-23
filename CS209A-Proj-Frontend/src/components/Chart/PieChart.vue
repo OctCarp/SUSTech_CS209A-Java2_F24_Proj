@@ -25,19 +25,15 @@ const initChart = () => {
       chartInstance = echarts.init(chartRef.value);
 
       const options = {
-        tooltip: {
-          trigger: 'item',
-          formatter: '{b} : {c} ({d}%)', // 格式化提示框内容
-        },
         legend: {
-          top: '5%',
+          top: '10%',
           left: 'center'
         },
         series: [
           {
             type: 'pie',
             radius: ['40%', '70%'], // 设置饼图的内外半径
-            center: ['50%', '50%'], // 将饼图居中
+            center: ['50%', '60%'], // 将饼图居中
             avoidLabelOverlap: false,
             padAngle: 5,
             itemStyle: {

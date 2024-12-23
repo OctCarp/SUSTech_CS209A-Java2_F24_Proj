@@ -3,41 +3,47 @@
     <h1>话题详细信息</h1>
 
     <div class="select-container">
-      <v-text-field
-          v-model="startDateText"
-          label="开始日期"
-          prepend-inner-icon="mdi-calendar"
-          readonly
-          clearable
-          color="primary"
-          @click="startDateDialog = true"
-          class="date-picker"
-      ></v-text-field>
+      <div class="filter-container">
+        <div class="date-picker-container">
+          <v-text-field
+              v-model="startDateText"
+              label="开始日期"
+              prepend-inner-icon="mdi-calendar"
+              readonly
+              clearable
+              color="primary"
+              @click="startDateDialog = true"
+              class="date-picker"
+          ></v-text-field>
 
-      <v-text-field
-          v-model="endDateText"
-          label="结束日期"
-          prepend-inner-icon="mdi-calendar"
-          readonly
-          clearable
-          color="primary"
-          @click="endDateDialog = true"
-          class="date-picker"
-      ></v-text-field>
+          <v-text-field
+              v-model="endDateText"
+              label="结束日期"
+              prepend-inner-icon="mdi-calendar"
+              readonly
+              clearable
+              color="primary"
+              @click="endDateDialog = true"
+              class="date-picker"
+          ></v-text-field>
+        </div>
 
-      <v-autocomplete
-          v-model="topicName"
-          :items="topicOptions"
-          label="输入话题名称"
-          density="comfortable"
-          menu-icon=""
-          variant="outlined"
-          clearable
-          auto-select-first
-          item-props
-          :no-data-text="'话题不存在'"
-          class="input-topic"
-      ></v-autocomplete>
+        <div class="topic-input-container">
+          <v-autocomplete
+              v-model="topicName"
+              :items="topicOptions"
+              label="输入话题名称"
+              density="comfortable"
+              menu-icon=""
+              variant="outlined"
+              clearable
+              auto-select-first
+              item-props
+              :no-data-text="'话题不存在'"
+              class="input-topic"
+          ></v-autocomplete>
+        </div>
+      </div>
 
       <v-btn @click="fetchData" :disabled="!topicName" size="large" color="primary" class="query-button">
         <v-icon icon="mdi-magnify"></v-icon>
@@ -124,8 +130,8 @@ const fetchData = async () => {
 
   try {
     // 将 startDate 和 endDate 转换为 Unix 时间戳（毫秒）
-    const startTimestamp = startDate.value ? startDate.value.getTime() : null;
-    const endTimestamp = endDate.value ? endDate.value.getTime() : null;
+    const startTimestamp = startDate.value ? startDate.value.getTime() / 1000 : 0;
+    const endTimestamp = endDate.value ? endDate.value.getTime() / 1000 : 1735660800;
 
     const response = await fetchTopicStatisticsData(topicName.value, startTimestamp, endTimestamp);
     if (response && response.topicStatistics) {
@@ -185,12 +191,21 @@ const collapse = () => {
   data.value = {};
 };
 
-// 更新选择日期的文本显示
 watch(startDate, (newDate) => {
   startDateText.value = newDate ? newDate.toLocaleDateString() : '';
 });
 watch(endDate, (newDate) => {
   endDateText.value = newDate ? newDate.toLocaleDateString() : '';
+});
+watch(startDateText, (newValue) => {
+  if (!newValue) {
+    startDate.value = null;
+  }
+});
+watch(endDateText, (newValue) => {
+  if (!newValue) {
+    endDate.value = null;
+  }
 });
 
 onMounted(() => {
@@ -211,22 +226,34 @@ h1 {
 
 .select-container {
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 20px;
 }
 
+.filter-container {
+  width: 83%;
+  display: flex;
+  flex-direction: column;
+}
+
+.date-picker-container {
+  display: flex;
+  justify-content: space-between;
+}
+
 .date-picker {
-  width: 140px;
+  width: 250px;
   margin-right: 20px;
+}
+
+.topic-input-container {
+  display: flex;
 }
 
 .input-topic {
   width: 120px;
   margin-right: 20px;
-}
-
-.query-button {
-  margin-top: 5px;
 }
 
 .toggle-button-container {

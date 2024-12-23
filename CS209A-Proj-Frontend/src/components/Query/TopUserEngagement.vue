@@ -15,7 +15,7 @@
 
       <v-text-field
           v-model="minReputation"
-          label="用户最低声望值(默认为0)"
+          label="用户最低名誉值(默认为0)"
           variant="outlined"
           clearable
           color="primary"
@@ -41,6 +41,7 @@
             :xAxisLabel="xAxisLabel"
             :yAxisLabel="yAxisLabel"
             :chartData="data"
+            :isShowLabel="false"
         />
       </div>
     </div>
@@ -71,6 +72,7 @@ const options = [
   { value: 5, label: '5个' },
   { value: 10, label: '10个' },
   { value: 15, label: '15个' },
+  { value: 16, label: '全部' },
 ];
 
 const reputationErrorMessages = ref([]);

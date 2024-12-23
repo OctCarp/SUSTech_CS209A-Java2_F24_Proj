@@ -1,6 +1,6 @@
 <template>
   <div class="chart-container">
-    <div ref="chartRef" style="width: 100%; height: 500px;"></div>
+    <div ref="chartRef" style="width: 100%; height: 400px;"></div>
   </div>
 </template>
 
@@ -47,6 +47,8 @@ const initChart = () => {
           data: props.labelData,
           axisLabel: {
             interval: 0,  // 强制显示所有标签
+            rotate: 30,  // 旋转45度
+            fontSize: 10,
           },
           axisTick: {
             alignWithLabel: true,  // 确保刻度线与标签对齐
@@ -54,6 +56,10 @@ const initChart = () => {
         },
         yAxis: {
           type: 'category',
+          axisLabel: {
+            interval: 0,  // 强制显示所有标签
+            fontSize: 10,
+          },
           data: props.labelData,
         },
         visualMap: {

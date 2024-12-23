@@ -3,28 +3,6 @@
     <h1>错误/异常详细信息</h1>
 
     <div class="select-container">
-      <v-text-field
-          v-model="startDateText"
-          label="开始日期"
-          prepend-inner-icon="mdi-calendar"
-          readonly
-          clearable
-          color="primary"
-          @click="startDateDialog = true"
-          class="date-picker"
-      ></v-text-field>
-
-      <v-text-field
-          v-model="endDateText"
-          label="结束日期"
-          prepend-inner-icon="mdi-calendar"
-          readonly
-          clearable
-          color="primary"
-          @click="endDateDialog = true"
-          class="date-picker"
-      ></v-text-field>
-
       <v-autocomplete
           v-model="bugName"
           :items="bugOptions"
@@ -69,15 +47,6 @@
         收起
       </v-btn>
     </div>
-
-    <v-dialog v-model="startDateDialog" max-width="290px">
-      <v-date-picker v-model="startDate" @input="startDateDialog = false" :max="endDate" color="primary"></v-date-picker>
-    </v-dialog>
-
-    <v-dialog v-model="endDateDialog" max-width="290px">
-      <v-date-picker v-model="endDate" @input="endDateDialog = false" :min="startDate" color="primary"></v-date-picker>
-    </v-dialog>
-
   </div>
 </template>
 
@@ -88,13 +57,6 @@ import {fetchAllBugName, fetchBugStatisticsData} from "@/services/api.js";
 
 const bugName = ref("");
 const stats = ref({});
-
-const startDate = ref(null);
-const endDate = ref(null);
-const startDateText = ref('');
-const endDateText = ref('');
-const startDateDialog = ref(false);
-const endDateDialog = ref(false);
 
 const chartTitle = ref(`${bugName.value} 发布类型占比`);
 const pieChartData = ref([]);
@@ -123,11 +85,7 @@ const fetchData = async () => {
   chartTitle.value = `${bugName.value} 发布类型占比`;
 
   try {
-    // 将 startDate 和 endDate 转换为 Unix 时间戳（毫秒）
-    const startTimestamp = startDate.value ? startDate.value.getTime() : null;
-    const endTimestamp = endDate.value ? endDate.value.getTime() : null;
-
-    const response = await fetchBugStatisticsData(bugName.value, startTimestamp, endTimestamp);
+    const response = await fetchBugStatisticsData(bugName.value);
     if (response && response.bugStatistics) {
       data.value = response;
       updateStats();
@@ -179,20 +137,10 @@ const formatLabel = (key) => {
 const collapse = () => {
   shouldUpdate.value = false;
   bugName.value = "";
-  startDate.value = null;
-  endDate.value = null;
   stats.value = {};
   pieChartData.value = [];
   data.value = {};
 };
-
-// 更新选择日期的文本显示
-watch(startDate, (newDate) => {
-  startDateText.value = newDate ? newDate.toLocaleDateString() : '';
-});
-watch(endDate, (newDate) => {
-  endDateText.value = newDate ? newDate.toLocaleDateString() : '';
-});
 
 onMounted(() => {
   fetchAllBugNameData();
@@ -216,18 +164,13 @@ h1 {
   margin-bottom: 20px;
 }
 
-.date-picker {
-  width: 140px;
-  margin-right: 20px;
-}
-
 .input-topic {
   width: 120px;
   margin-right: 20px;
 }
 
 .query-button {
-  margin-top: 5px;
+  margin-top: 2px;
 }
 
 .toggle-button-container {

@@ -12,14 +12,14 @@
     <div v-if="shouldUpdate">
       <div class="stats">
         <div class="stat-card">
-          <h4>总答案数</h4>
+          <h4>答案总数</h4>
           <p>{{ data.length }}</p>
         </div>
       </div>
 
       <div class="chart-container">
         <!-- 饼状图 -->
-        <div class="chart-item-pie">
+        <div class="chart-item">
           <div class="chart-title-container">
             <h2>答案质量分布</h2>
           </div>
@@ -162,11 +162,12 @@ const updateStats = () => {
     }).flat();
 
     // 将数据转换为散点图数据
-    scatterChartData.value = data.value.map(item => [
-      item.answerLength,
-      item.ownerReputation,
-      item.qualityLevelNum,
-    ]);
+    scatterChartData.value = data.value.map(item => ({
+      answerLength: item.answerLength,
+      ownerReputation: item.ownerReputation,
+      responseSeconds: item.responseSeconds,
+      qualityLevel: item.qualityLevel,
+    }));
   }
 };
 
@@ -254,27 +255,18 @@ h1 {
 
 .chart-container {
   display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 20px;
-  margin-bottom: 100px;
-}
-
-.chart-item-pie {
-  max-width: 100%;
-  min-width: 500px;
-  height: 400px;
-  box-sizing: border-box;
-  justify-content: center;
+  flex-wrap: wrap; /* 允许换行 */
+  justify-content: space-between; /* 在水平方向分布 */
+  gap: 20px; /* 图表之间的间距 */
+  margin-bottom: 200px;
 }
 
 .chart-item {
-  max-width: 100%;
-  min-width: 500px;
-  height: 500px;
+  flex: 1 1 calc(33.33% - 20px); /* 每个图表占 1/3 宽度，减去间距 */
+  min-width: 300px; /* 设置最小宽度，防止过小 */
+  max-width: 500px; /* 设置最大宽度 */
+  height: 400px; /* 固定高度 */
   box-sizing: border-box;
-  justify-content: center;
-  margin-bottom: 20px;
 }
 
 .chart-title-container {
@@ -289,7 +281,7 @@ h1 {
   }
 
   .chart-item {
-    max-width: 100%;
+    flex: 1 1 100%;
     min-width: 100%;
   }
 }

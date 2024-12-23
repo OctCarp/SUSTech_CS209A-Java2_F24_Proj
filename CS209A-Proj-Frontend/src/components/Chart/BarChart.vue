@@ -22,6 +22,10 @@ const props = defineProps({
     type: Array,
     required: true,
   },
+  isShowLabel: {
+    type: Boolean,
+    default: true,
+  },
 });
 
 // 存储颜色映射
@@ -111,7 +115,7 @@ const initChart = () => {
             type: 'bar',
             data: seriesData[0] || [], // 如果只有一个系列，使用单个数据项
             label: {
-              show: true,  // 显示每个柱子的值
+              show: props.isShowLabel,  // 显示每个柱子的值
               position: 'top',  // 数值显示在柱子顶部
               fontSize: 10,
               color: '#666',

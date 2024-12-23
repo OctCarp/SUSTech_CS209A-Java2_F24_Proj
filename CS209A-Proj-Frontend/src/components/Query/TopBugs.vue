@@ -3,28 +3,6 @@
     <h1>高频错误/异常</h1>
 
     <div class="select-container">
-      <v-text-field
-          v-model="startDateText"
-          label="开始日期"
-          prepend-inner-icon="mdi-calendar"
-          readonly
-          clearable
-          color="primary"
-          @click="startDateDialog = true"
-          class="date-picker"
-      ></v-text-field>
-
-      <v-text-field
-          v-model="endDateText"
-          label="结束日期"
-          prepend-inner-icon="mdi-calendar"
-          readonly
-          clearable
-          color="primary"
-          @click="endDateDialog = true"
-          class="date-picker"
-      ></v-text-field>
-
       <v-select
           v-model="numBugs"
           :items="options"
@@ -70,15 +48,6 @@
         收起
       </v-btn>
     </div>
-
-    <v-dialog v-model="startDateDialog" max-width="290px">
-      <v-date-picker v-model="startDate" @input="startDateDialog = false" :max="endDate" color="primary"></v-date-picker>
-    </v-dialog>
-
-    <v-dialog v-model="endDateDialog" max-width="290px">
-      <v-date-picker v-model="endDate" @input="endDateDialog = false" :min="startDate" color="primary"></v-date-picker>
-    </v-dialog>
-
   </div>
 </template>
 
@@ -89,13 +58,6 @@ import {fetchTopBugData} from "@/services/api.js";
 
 let shouldUpdate = ref(false);
 const numBugs = ref('');
-
-const startDate = ref(null);
-const endDate = ref(null);
-const startDateText = ref('');
-const endDateText = ref('');
-const startDateDialog = ref(false);
-const endDateDialog = ref(false);
 
 const errorChartTitle = ref(`最高频的${numBugs.value}个错误`);
 const exceptionChartTitle = ref(`最高频的${numBugs.value}个异常`);
@@ -118,15 +80,11 @@ const fetchData = async () => {
   exceptionChartTitle.value = `最高频的${numBugs.value}个异常`;
 
   try {
-    // 将 startDate 和 endDate 转换为 Unix 时间戳（毫秒）
-    const startTimestamp = startDate.value ? startDate.value.getTime() : null;
-    const endTimestamp = endDate.value ? endDate.value.getTime() : null;
-
     const errorType = 'ERROR';
     const exceptionType = 'EXCEPTION';
 
-    const errorResponse = await fetchTopBugData(numBugs.value, errorType, startTimestamp, endTimestamp);
-    const exceptionResponse = await fetchTopBugData(numBugs.value, exceptionType, startTimestamp, endTimestamp);
+    const errorResponse = await fetchTopBugData(numBugs.value, errorType);
+    const exceptionResponse = await fetchTopBugData(numBugs.value, exceptionType);
     if (Array.isArray(exceptionResponse) && Array.isArray(errorResponse)) {
       errorData.value = errorResponse.map(item => ({
         name: item.bugName.replace(/(Error|Exception)$/, ''),  // 裁剪掉 "Error" 或 "Exception"
@@ -150,23 +108,12 @@ const fetchData = async () => {
   }
 };
 
-// 收起按钮的点击事件，恢复默认值并隐藏图表
 const collapse = () => {
   shouldUpdate.value = false;
   numBugs.value = '';
-  startDate.value = null;
-  endDate.value = null;
   errorData.value = [];
   exceptionData.value = [];
 };
-
-// 更新选择日期的文本显示
-watch(startDate, (newDate) => {
-  startDateText.value = newDate ? newDate.toLocaleDateString() : '';
-});
-watch(endDate, (newDate) => {
-  endDateText.value = newDate ? newDate.toLocaleDateString() : '';
-});
 </script>
 
 <style scoped>
@@ -184,11 +131,6 @@ h1 {
   display: flex;
   justify-content: space-between;
   margin-bottom: 20px;
-}
-
-.date-picker {
-  width: 140px;
-  margin-right: 20px;
 }
 
 .topic-select {
