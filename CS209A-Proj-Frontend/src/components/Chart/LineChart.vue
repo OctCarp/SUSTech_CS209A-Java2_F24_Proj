@@ -27,7 +27,6 @@ const props = defineProps({
 const chartRef = ref(null);
 let chartInstance = null;
 
-// 初始化图表
 const initChart = () => {
   nextTick(() => {
     if (chartRef.value) {
@@ -55,7 +54,7 @@ const initChart = () => {
             fontSize: 12,
           },
           axisLabel: {
-            formatter: '{value}', // 格式化 x 轴标签
+            formatter: '{value}',
           },
         },
         yAxis: {
@@ -65,7 +64,7 @@ const initChart = () => {
             fontSize: 12,
           },
           axisLabel: {
-            formatter: '{value}', // 格式化 y 轴标签
+            formatter: '{value}',
           },
         },
         dataZoom: [
@@ -83,7 +82,7 @@ const initChart = () => {
             name: 'User Count',
             type: 'line',
             data: props.chartData.map((item) => [item.reputation, item.count]),
-            smooth: true, // 平滑曲线
+            smooth: true,
             symbol: 'none', // 隐藏点标记
             sampling: 'average', // 数据采样以提高性能
             lineStyle: {
@@ -92,18 +91,16 @@ const initChart = () => {
           },
         ],
       };
-
       chartInstance.setOption(options);
+      chartInstance.resize();
     }
   });
 };
 
-// 初始化图表
 onMounted(() => {
   initChart();
 });
 
-// 监听数据变化，更新图表
 watch(
     () => props.chartData,
     (newData) => {
@@ -119,7 +116,6 @@ watch(
     }
 );
 
-// 在窗口大小变化时重新调整图表
 window.addEventListener('resize', () => {
   if (chartInstance) {
     chartInstance.resize();

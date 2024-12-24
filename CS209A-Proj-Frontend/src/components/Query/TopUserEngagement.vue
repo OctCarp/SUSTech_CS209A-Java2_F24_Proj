@@ -60,14 +60,15 @@ import { ref, watch } from 'vue';
 import BarChart from '../Chart/BarChart.vue';
 import { fetchTopTopicEngagementData } from "@/services/api.js";
 
-const shouldUpdate = ref(false);
 const numTopics = ref("");
 const minReputation = ref(0);
-
 const chartTitle = ref(`用户参与度最高的${numTopics.value}个话题`);
 const xAxisLabel = ref('话题');
 const yAxisLabel = ref('用户参与度');
+const reputationErrorMessages = ref([]);
+let shouldUpdate = ref(false);
 let data = ref([]);
+
 const options = [
   { value: 5, label: '5个' },
   { value: 10, label: '10个' },
@@ -75,11 +76,8 @@ const options = [
   { value: 16, label: '全部' },
 ];
 
-const reputationErrorMessages = ref([]);
-
 const validateReputation = () => {
   reputationErrorMessages.value = [];
-
   if (minReputation.value < 0) {
     reputationErrorMessages.value.push('用户最低声望值不能低于0');
   }
@@ -88,7 +86,6 @@ const validateReputation = () => {
 const fetchData = async () => {
   shouldUpdate.value = true;
   chartTitle.value = `用户参与度最高的${numTopics.value}个话题`;
-
   try {
     const response = await fetchTopTopicEngagementData(numTopics.value, minReputation.value);
     if (Array.isArray(response)) {

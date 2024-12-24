@@ -55,19 +55,16 @@ import { ref } from 'vue';
 import LineChart from "@/components/Chart/LineChart.vue";
 import { fetchAllUserReputation } from "@/services/api.js";
 
-let shouldUpdate = ref(false);
-
 const meanReputation = ref(0);
 const medianReputation = ref(0);
 const userCount = ref(0);
 const xAxisLabel = ref("用户名誉");
 const yAxisLabel = ref("用户数量");
-
+let shouldUpdate = ref(false);
 let data = ref([]);
 
 const fetchData = async () => {
   shouldUpdate.value = true;
-
   try {
     const response = await fetchAllUserReputation();
     console.log(response);

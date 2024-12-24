@@ -54,7 +54,7 @@ import AnswerQuality from "@/components/Query/AnswerQuality.vue";
 
 .statistics-single-column {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 100%));
+  grid-template-columns: repeat(auto-fill, minmax(250px, 98%));
   gap: 20px;
   padding: 20px;
   justify-content: center;
@@ -67,8 +67,8 @@ import AnswerQuality from "@/components/Query/AnswerQuality.vue";
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-  min-height: 0;               /* 防止父容器的高度影响 */
-  height: auto;                /* 根据内容自适应高度 */
-  box-sizing: border-box;      /* 包括内边距和边框 */
+  min-height: 0;
+  height: auto;
+  box-sizing: border-box;
 }
 </style>

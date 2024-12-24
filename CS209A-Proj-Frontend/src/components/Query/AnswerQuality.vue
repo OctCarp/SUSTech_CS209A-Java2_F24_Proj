@@ -18,7 +18,6 @@
       </div>
 
       <div class="chart-container">
-        <!-- 饼状图 -->
         <div class="chart-item">
           <div class="chart-title-container">
             <h2>答案质量分布</h2>
@@ -26,7 +25,6 @@
           <PieChart :chartData="pieChartData" />
         </div>
 
-        <!-- 热力图 -->
         <div class="chart-item">
           <div class="chart-title-container">
             <h2>答案质量相关性热力图</h2>
@@ -34,8 +32,7 @@
           <HeatMap :chartData="heatMapData" :label-data="labels" />
         </div>
 
-        <!-- 三维散点图 -->
-        <div class="chart-item">
+        <div class="chart-item scatter-chart">
           <div class="chart-title-container">
             <h2>答案质量散点图</h2>
           </div>
@@ -60,24 +57,20 @@ import HeatMap from "@/components/Chart/HeatMap.vue";
 import ScatterChart from "@/components/Chart/ScatterChart.vue";
 import { fetchAnswerQualityData } from "@/services/api.js";
 
-let shouldUpdate = ref(false);
-
 const pieChartData = ref([]);
 const heatMapData = ref([]);
 const scatterChartData = ref([]);
-
 const labels = ['答案质量', '答案长度', '作答用户采纳率', '作答用户名誉', '作答时间'];
-
+let shouldUpdate = ref(false);
 let data = ref([]);
 
 const fetchData = async () => {
   shouldUpdate.value = true;
-
   try {
     const response = await fetchAnswerQualityData();
     if (Array.isArray(response)) {
       data.value = response.map(item => {
-        // 如果 ownerAcceptRate 为 -1，设置为 0
+        // 如果ownerAcceptRate为-1(表示从未被接受过),设置为0
         if (item.ownerAcceptRate === -1) {
           item.ownerAcceptRate = 0;
         }
@@ -121,7 +114,6 @@ const updateStats = () => {
       value: qualityCounts[key],
     }));
 
-    // 计算相关性矩阵
     const qualityLevelMap = {
       EXCELLENT: 3,
       GOOD: 2,
@@ -143,12 +135,10 @@ const updateStats = () => {
         const values1 = data.value.map(item => item[field1]);
         const values2 = data.value.map(item => item[field2]);
 
-        // 计算两个字段之间的皮尔逊相关系数
         correlations[field1][field2] = calculateCorrelation(values1, values2);
       });
     });
 
-    // 将相关性矩阵转换为热力图数据
     heatMapData.value = Object.keys(correlations).map((label1, i) => {
       return Object.keys(correlations).map((label2, j) => {
         return {
@@ -161,7 +151,6 @@ const updateStats = () => {
       });
     }).flat();
 
-    // 将数据转换为散点图数据
     scatterChartData.value = data.value.map(item => ({
       answerLength: item.answerLength,
       ownerReputation: item.ownerReputation,
@@ -171,6 +160,7 @@ const updateStats = () => {
   }
 };
 
+// 计算皮尔逊相关系数
 const calculateCorrelation = (x, y) => {
   const n = x.length;
   const avgX = x.reduce((sum, val) => sum + val, 0) / n;
@@ -255,17 +245,25 @@ h1 {
 
 .chart-container {
   display: flex;
-  flex-wrap: wrap; /* 允许换行 */
-  justify-content: space-between; /* 在水平方向分布 */
-  gap: 20px; /* 图表之间的间距 */
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 20px;
   margin-bottom: 200px;
 }
 
 .chart-item {
-  flex: 1 1 calc(33.33% - 20px); /* 每个图表占 1/3 宽度，减去间距 */
-  min-width: 300px; /* 设置最小宽度，防止过小 */
-  max-width: 500px; /* 设置最大宽度 */
-  height: 400px; /* 固定高度 */
+  flex: 1 1 calc(30% - 20px);
+  min-width: 300px;
+  max-width: 500px;
+  height: 400px;
+  box-sizing: border-box;
+}
+
+.chart-item.scatter-chart {
+  flex: 1 1 calc(40% - 20px);
+  min-width: 300px;
+  max-width: 500px;
+  height: 400px;
   box-sizing: border-box;
 }
 

@@ -52,19 +52,17 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue';
+import { ref } from 'vue';
 import BarChart from "@/components/Chart/BarChart.vue";
-import {fetchTopBugData} from "@/services/api.js";
+import { fetchTopBugData } from "@/services/api.js";
 
-let shouldUpdate = ref(false);
 const numBugs = ref('');
-
 const errorChartTitle = ref(`最高频的${numBugs.value}个错误`);
 const exceptionChartTitle = ref(`最高频的${numBugs.value}个异常`);
 const errorXAxisLabel = ref('错误');
 const exceptionXAxisLabel = ref('异常');
 const yAxisLabel = ref('频率');
-
+let shouldUpdate = ref(false);
 let errorData = ref([]);
 let exceptionData = ref([]);
 
@@ -78,7 +76,6 @@ const fetchData = async () => {
   shouldUpdate.value = true;
   errorChartTitle.value = `最高频的${numBugs.value}个错误`;
   exceptionChartTitle.value = `最高频的${numBugs.value}个异常`;
-
   try {
     const errorType = 'ERROR';
     const exceptionType = 'EXCEPTION';
@@ -92,7 +89,7 @@ const fetchData = async () => {
         type: item.bugType,
       })).sort((a, b) => b.value - a.value);
       exceptionData.value = exceptionResponse.map(item => ({
-        name: item.bugName.replace(/(Error|Exception)$/, ''),  // 裁剪掉 "Error" 或 "Exception"
+        name: item.bugName.replace(/(Error|Exception)$/, ''),
         value: item.bugFrequency,
         type: item.bugType,
       })).sort((a, b) => b.value - a.value);

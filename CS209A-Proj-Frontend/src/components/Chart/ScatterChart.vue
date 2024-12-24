@@ -7,7 +7,7 @@
 <script setup>
 import { ref, nextTick, onMounted, watch } from 'vue';
 import * as echarts from 'echarts';
-import 'echarts-gl'; // 引入echarts-gl来支持3D图表
+import 'echarts-gl';
 
 const props = defineProps({
   chartData: {
@@ -23,16 +23,16 @@ const initChart = () => {
   nextTick(() => {
     if (chartRef.value) {
       chartInstance = echarts.init(chartRef.value);
+
       const symbolSize = 5;
 
       const qualityColors = {
-        EXCELLENT: '#91cc75', // 优秀
-        GOOD: '#5470c6',      // 好
-        FAIR: '#fac858',      // 中等
-        POOR: '#ee6666',      // 差
+        EXCELLENT: '#91cc75',
+        GOOD: '#5470c6',
+        FAIR: '#fac858',
+        POOR: '#ee6666',
       };
 
-      // 为每个 qualityLevel 设置对应的系列
       const seriesData = {
         POOR: [],
         FAIR: [],
@@ -40,10 +40,9 @@ const initChart = () => {
         EXCELLENT: [],
       };
 
-      // Convert responseSeconds from seconds to hours (3600 seconds in an hour)
       props.chartData.forEach(item => {
         const qualityLevel = item.qualityLevel;
-        const responseHours = item.responseSeconds / 3600; // Convert to hours
+        const responseHours = item.responseSeconds / 3600;
         if (qualityColors[qualityLevel]) {
           seriesData[qualityLevel].push({
             value: [item.ownerReputation, item.answerLength, responseHours],
@@ -140,7 +139,7 @@ const initChart = () => {
           ],
           source: props.chartData.map(item => ({
             ...item,
-            responseSeconds: item.responseSeconds / 3600, // Convert to hours
+            responseSeconds: item.responseSeconds / 3600,
           })),
         },
         legend: {
@@ -231,8 +230,8 @@ const initChart = () => {
           },
         ],
       };
-
       chartInstance.setOption(options);
+      chartInstance.resize();
     }
   });
 };
@@ -248,13 +247,12 @@ watch(
         const symbolSize = 5;
 
         const qualityColors = {
-          EXCELLENT: '#91cc75', // 优秀
-          GOOD: '#5470c6',      // 好
-          FAIR: '#fac858',      // 中等
-          POOR: '#ee6666',      // 差
+          EXCELLENT: '#91cc75',
+          GOOD: '#5470c6',
+          FAIR: '#fac858',
+          POOR: '#ee6666',
         };
 
-        // 为每个 qualityLevel 设置对应的系列
         const seriesData = {
           POOR: [],
           FAIR: [],
@@ -262,10 +260,9 @@ watch(
           EXCELLENT: [],
         };
 
-        // Convert responseSeconds from seconds to hours (3600 seconds in an hour)
         newData.forEach(item => {
           const qualityLevel = item.qualityLevel;
-          const responseHours = item.responseSeconds / 3600; // Convert to hours
+          const responseHours = item.responseSeconds / 3600;
           if (qualityColors[qualityLevel]) {
             seriesData[qualityLevel].push({
               value: [item.ownerReputation, item.answerLength, responseHours],
@@ -284,7 +281,7 @@ watch(
             ],
             source: newData.map(item => ({
               ...item,
-              responseSeconds: item.responseSeconds / 3600, // Convert to hours
+              responseSeconds: item.responseSeconds / 3600,
             })),
           },
           series: [

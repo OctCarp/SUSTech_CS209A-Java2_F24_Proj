@@ -52,6 +52,9 @@
     </div>
 
     <div v-if="shouldUpdate">
+      <div class="statistic-title-container">
+        <h2>{{ statisticTitle }}</h2>
+      </div>
       <div class="stats">
         <div class="stat-card" v-for="(value, key) in stats" :key="key">
           <h4>{{ formatLabel(key) }}</h4>
@@ -65,6 +68,7 @@
         </div>
         <PieChart
             :chartData="pieChartData"
+            style="margin-bottom: 50px; margin-top: auto;"
         />
       </div>
     </div>
@@ -88,26 +92,23 @@
 </template>
 
 <script setup>
-import {ref, onMounted, watch} from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import PieChart from "@/components/Chart/PieChart.vue";
 import { fetchTopicStatisticsData, fetchAllTopicName } from "@/services/api.js";
 
 const topicName = ref("");
 const stats = ref({});
-
 const startDate = ref(null);
 const endDate = ref(null);
 const startDateText = ref('');
 const endDateText = ref('');
 const startDateDialog = ref(false);
 const endDateDialog = ref(false);
-
+const statisticTitle = ref(`${topicName.value} 详细数据`);
 const chartTitle = ref(`${topicName.value} 发布类型占比`);
 const pieChartData = ref([]);
-const shouldUpdate = ref(false);
-
 const topicOptions = ref([]);
-
+let shouldUpdate = ref(false);
 let data = ref();
 
 const fetchAllTopicNameData = async () => {
@@ -126,8 +127,8 @@ const fetchAllTopicNameData = async () => {
 
 const fetchData = async () => {
   shouldUpdate.value = true;
+  statisticTitle.value = `${topicName.value} 详细数据`;
   chartTitle.value = `${topicName.value} 发布类型占比`;
-
   try {
     // 将 startDate 和 endDate 转换为 Unix 时间戳（毫秒）
     const startTimestamp = startDate.value ? startDate.value.getTime() / 1000 : 0;
@@ -293,7 +294,15 @@ h1 {
   color: #3498db;
 }
 
+.statistic-title-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 30px;
+}
+
 .chart-container {
+  display: flex;
+  flex-direction: column;
   margin-top: 40px;
 }
 

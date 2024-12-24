@@ -8,7 +8,6 @@
 import { onMounted, ref, watch, nextTick } from 'vue';
 import * as echarts from 'echarts';
 
-// 定义传入的 props
 const props = defineProps({
   chartData: {
     type: Array,
@@ -32,8 +31,8 @@ const initChart = () => {
         series: [
           {
             type: 'pie',
-            radius: ['40%', '70%'], // 设置饼图的内外半径
-            center: ['50%', '60%'], // 将饼图居中
+            radius: ['40%', '70%'],
+            center: ['50%', '60%'],
             avoidLabelOverlap: false,
             padAngle: 5,
             itemStyle: {
@@ -45,11 +44,10 @@ const initChart = () => {
             })),
             label: {
               normal: {
-                // 格式化标签内容：显示名称、数值和百分比
                 show: false,
                 position: 'center',
                 formatter: '{b}: {c} ({d}%)',  // 显示扇区名称、值、百分比
-                fontSize: 12,  // 标签字体大小
+                fontSize: 12,
               }
             },
             emphasis: {
@@ -61,17 +59,17 @@ const initChart = () => {
             },
             labelLine: {
               normal: {
-                length: 20,  // 标签线的长度
+                length: 20,
                 lineStyle: {
-                  width: 3,  // 标签线的宽度
+                  width: 3,
                 },
               }
             }
           },
         ],
       };
-
       chartInstance.setOption(options);
+      chartInstance.resize();
     }
   });
 };

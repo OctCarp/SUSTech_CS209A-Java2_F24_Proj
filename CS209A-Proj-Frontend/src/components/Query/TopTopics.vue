@@ -4,29 +4,29 @@
 
     <div class="select-container">
       <div class="filter-container">
-        <div class="date-picker-container">
-          <v-text-field
-              v-model="startDateText"
-              label="开始日期"
-              prepend-inner-icon="mdi-calendar"
-              readonly
-              clearable
-              color="primary"
-              @click="startDateDialog = true"
-              class="date-picker"
-          ></v-text-field>
+<!--        <div class="date-picker-container">-->
+<!--          <v-text-field-->
+<!--              v-model="startDateText"-->
+<!--              label="开始日期"-->
+<!--              prepend-inner-icon="mdi-calendar"-->
+<!--              readonly-->
+<!--              clearable-->
+<!--              color="primary"-->
+<!--              @click="startDateDialog = true"-->
+<!--              class="date-picker"-->
+<!--          ></v-text-field>-->
 
-          <v-text-field
-              v-model="endDateText"
-              label="结束日期"
-              prepend-inner-icon="mdi-calendar"
-              readonly
-              clearable
-              color="primary"
-              @click="endDateDialog = true"
-              class="date-picker"
-          ></v-text-field>
-        </div>
+<!--          <v-text-field-->
+<!--              v-model="endDateText"-->
+<!--              label="结束日期"-->
+<!--              prepend-inner-icon="mdi-calendar"-->
+<!--              readonly-->
+<!--              clearable-->
+<!--              color="primary"-->
+<!--              @click="endDateDialog = true"-->
+<!--              class="date-picker"-->
+<!--          ></v-text-field>-->
+<!--        </div>-->
 
         <div class="topic-select-container">
           <v-select
@@ -52,7 +52,9 @@
         <div class="chart-title-container">
           <h2>{{ wordCloudTitle }}</h2>
         </div>
-        <WordCloud :chartData="data" />
+        <WordCloud
+            :chartData="data"
+        />
       </div>
 
       <div class="chart-item">
@@ -74,37 +76,34 @@
       </v-btn>
     </div>
 
-    <v-dialog v-model="startDateDialog" max-width="290px">
-      <v-date-picker v-model="startDate" @input="startDateDialog = false" :max="endDate" color="primary"></v-date-picker>
-    </v-dialog>
+<!--    <v-dialog v-model="startDateDialog" max-width="290px">-->
+<!--      <v-date-picker v-model="startDate" @input="startDateDialog = false" :max="endDate" color="primary"></v-date-picker>-->
+<!--    </v-dialog>-->
 
-    <v-dialog v-model="endDateDialog" max-width="290px">
-      <v-date-picker v-model="endDate" @input="endDateDialog = false" :min="startDate" color="primary"></v-date-picker>
-    </v-dialog>
+<!--    <v-dialog v-model="endDateDialog" max-width="290px">-->
+<!--      <v-date-picker v-model="endDate" @input="endDateDialog = false" :min="startDate" color="primary"></v-date-picker>-->
+<!--    </v-dialog>-->
   </div>
 </template>
 
 <script setup>
-import { computed, onMounted, ref, watch } from 'vue';
+import { ref, watch } from 'vue';
 import BarChart from '../Chart/BarChart.vue';
 import WordCloud from '../Chart/WordCloud.vue';
-import { fetchAllTopicName, fetchTopTopicData } from "@/services/api.js";
+import { fetchTopTopicData } from "@/services/api.js";
 
-let shouldUpdate = ref(false);
 const numTopics = ref('');
-
 const startDate = ref(null);
 const endDate = ref(null);
 const startDateText = ref('');
 const endDateText = ref('');
 const startDateDialog = ref(false);
 const endDateDialog = ref(false);
-
 const wordCloudTitle = ref('高频话题词云');
 const chartTitle = ref(`最高频的${numTopics.value}个话题`);
 const xAxisLabel = ref('话题');
 const yAxisLabel = ref('频率');
-
+let shouldUpdate = ref(false);
 let data = ref([]);
 
 const options = [
@@ -117,7 +116,6 @@ const options = [
 const fetchData = async () => {
   shouldUpdate.value = true;
   chartTitle.value = `最高频的${numTopics.value}个话题`;
-
   try {
     const startTimestamp = startDate.value ? startDate.value.getTime() / 1000 : 0;
     const endTimestamp = endDate.value ? endDate.value.getTime() / 1000 : 1735660800;
@@ -199,6 +197,10 @@ h1 {
   margin-right: 20px;
 }
 
+.query-button {
+  margin-bottom: 20px;
+}
+
 .topic-select-container {
   display: flex;
 }
@@ -224,7 +226,7 @@ h1 {
 
 .word-cloud {
   width: 100%;
-  height: 300px;
+  height: 200px;
 }
 
 .chart-item {
