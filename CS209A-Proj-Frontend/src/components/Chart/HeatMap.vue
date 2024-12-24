@@ -38,8 +38,8 @@ const initChart = () => {
           }
         },
         grid: {
-          left: '17%',
-          bottom: '20%',
+          left: '20%',
+          bottom: '25%',
           top: '10%',
         },
         xAxis: {
@@ -47,7 +47,7 @@ const initChart = () => {
           data: props.labelData,
           axisLabel: {
             interval: 0,  // 强制显示所有标签
-            rotate: 30,  // 旋转45度
+            rotate: 30,
             fontSize: 10,
           },
           axisTick: {
@@ -67,8 +67,8 @@ const initChart = () => {
           max: 1,
           calculable: true,
           orient: 'horizontal',
-          left: 'center',
-          bottom: '0',  // 设置距离底部为0，确保位于图表下方
+          left: '33%',
+          bottom: '0',
         },
         series: [
           {
@@ -90,8 +90,8 @@ const initChart = () => {
           },
         ],
       };
-
       chartInstance.setOption(options);
+      chartInstance.resize();
     }
   });
 };

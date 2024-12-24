@@ -38,17 +38,16 @@ const initChart = () => {
         series: [
           {
             type: 'wordCloud',
-            shape: 'circle', // 词云形状，可选：'circle', 'cardioid', 'diamond', 'triangle-forward', 等
-            sizeRange: [15, 50], // 字体大小范围
-            rotationRange: [-90, 90], // 文字旋转范围
-            rotationStep: 45, // 旋转步长
-            gridSize: 8, // 网格大小，值越小，字间距越小
+            shape: 'circle',
+            sizeRange: [15, 50],
+            rotationRange: [-90, 90],
+            rotationStep: 45,
+            gridSize: 8,
             drawOutOfBound: false,
             textStyle: {
               fontFamily: 'sans-serif',
               fontWeight: 'bold',
               color: () => {
-                // 随机生成颜色
                 return `rgb(${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, ${Math.floor(
                     Math.random() * 255
                 )})`;
@@ -61,8 +60,8 @@ const initChart = () => {
           },
         ],
       };
-
       chartInstance.setOption(options);
+      chartInstance.resize();
     }
   });
 };

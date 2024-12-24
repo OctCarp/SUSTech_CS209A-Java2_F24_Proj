@@ -22,7 +22,7 @@
 .header {
   display: flex;
   align-items: center;
-  justify-content: space-between; /* 将元素分布在左右两端 */
+  justify-content: space-between;
   padding: 10px 20px;
   background-color: #f4f4f4;
   border-bottom: 2px solid #ddd;
@@ -59,7 +59,6 @@
   margin-right: 30px;
 }
 
-/* 将 GitHub 链接推到右边 */
 .link:last-child {
   margin-left: auto;
 }

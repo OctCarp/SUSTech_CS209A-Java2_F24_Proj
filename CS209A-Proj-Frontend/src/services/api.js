@@ -3,7 +3,6 @@ import axios from 'axios';
 export const serverUrl = 'http://localhost:8081/api';
 // export const serverUrl = 'http://10.26.2.214:8081';
 
-// 创建一个 Axios 实例
 const apiClient = axios.create({
     baseURL: serverUrl,
     withCredentials: true,
@@ -22,7 +21,7 @@ export const fetchTopTopicData = async (numTopics, startSecond, endSecond) => {
     }
 };
 
-// 获取高频故障数据
+// 获取高频错误/异常数据
 export const fetchTopBugData = async (numBugs, bugType) => {
     const url = `${serverUrl}/bugs/top/frequency?limit=${numBugs}&type=${bugType}`;
     try {
@@ -36,7 +35,6 @@ export const fetchTopBugData = async (numBugs, bugType) => {
 
 // 获取话题详细数据
 export const fetchTopicStatisticsData = async (topicName, startSecond, endSecond) => {
-    // const url = `${serverUrl}/topics/name/${topicName}/statistics`;
     const url = `${serverUrl}/topics/name/${topicName}/statistics?startSecond=${startSecond}&endSecond=${endSecond}`;
     try {
         const response = await apiClient.get(url);
@@ -47,7 +45,7 @@ export const fetchTopicStatisticsData = async (topicName, startSecond, endSecond
     }
 };
 
-// 获取故障详细数据
+// 获取错误/异常详细数据
 export const fetchBugStatisticsData = async (bugName) => {
     const url = `${serverUrl}/bugs/name/${bugName}/statistics`;
     try {
@@ -59,6 +57,7 @@ export const fetchBugStatisticsData = async (bugName) => {
     }
 };
 
+// 获取高频用户参与话题数据
 export const fetchTopTopicEngagementData = async (numTopics, minReputation) => {
     const url = `${serverUrl}/topics/top/engagement?limit=${numTopics}&min_reputation=${minReputation}`;
     try {
@@ -70,6 +69,7 @@ export const fetchTopTopicEngagementData = async (numTopics, minReputation) => {
     }
 };
 
+// 获取答案质量数据
 export const fetchAnswerQualityData = async () => {
     const url = `${serverUrl}/answers/all/quality/static`;
     try {
@@ -81,6 +81,7 @@ export const fetchAnswerQualityData = async () => {
     }
 };
 
+// 获取所有话题名称
 export const fetchAllTopicName = async () => {
     const url = `${serverUrl}/topics/all/brief`;
     try {
@@ -92,6 +93,7 @@ export const fetchAllTopicName = async () => {
     }
 };
 
+// 获取所有错误/异常名称
 export const fetchAllBugName = async () => {
     const url = `${serverUrl}/bugs/top/frequency/brief`;
     try {
@@ -103,6 +105,7 @@ export const fetchAllBugName = async () => {
     }
 };
 
+// 获取所有用户声望数据
 export const fetchAllUserReputation = async () => {
     const url = `${serverUrl}/users/all/rep-dist`;
     try {

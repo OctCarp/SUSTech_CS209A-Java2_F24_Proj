@@ -24,6 +24,9 @@
     </div>
 
     <div v-if="shouldUpdate">
+      <div class="statistic-title-container">
+        <h2>{{ statisticTitle }}</h2>
+      </div>
       <div class="stats">
         <div class="stat-card" v-for="(value, key) in stats" :key="key">
           <h4>{{ formatLabel(key) }}</h4>
@@ -37,6 +40,7 @@
         </div>
         <PieChart
             :chartData="pieChartData"
+            style="margin-bottom: 50px; margin-top: auto;"
         />
       </div>
     </div>
@@ -51,19 +55,17 @@
 </template>
 
 <script setup>
-import {onMounted, ref, watch} from 'vue';
+import { onMounted, ref } from 'vue';
 import PieChart from "@/components/Chart/PieChart.vue";
-import {fetchAllBugName, fetchBugStatisticsData} from "@/services/api.js";
+import { fetchAllBugName, fetchBugStatisticsData } from "@/services/api.js";
 
 const bugName = ref("");
 const stats = ref({});
-
+const statisticTitle = ref(`${bugName.value} 详细数据`);
 const chartTitle = ref(`${bugName.value} 发布类型占比`);
 const pieChartData = ref([]);
-const shouldUpdate = ref(false);
-
 const bugOptions = ref([]);
-
+let shouldUpdate = ref(false);
 let data = ref();
 
 const fetchAllBugNameData = async () => {
@@ -82,8 +84,8 @@ const fetchAllBugNameData = async () => {
 
 const fetchData = async () => {
   shouldUpdate.value = true;
+  statisticTitle.value = `${bugName.value} 详细数据`;
   chartTitle.value = `${bugName.value} 发布类型占比`;
-
   try {
     const response = await fetchBugStatisticsData(bugName.value);
     if (response && response.bugStatistics) {
@@ -120,7 +122,6 @@ const updateStats = () => {
   }
 };
 
-// 格式化标签，转换为更友好的展示形式
 const formatLabel = (key) => {
   switch (key) {
     case 'frequency': return '话题频率';
@@ -208,6 +209,12 @@ h1 {
   font-size: 20px;
   font-weight: bold;
   color: #3498db;
+}
+
+.statistic-title-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 30px;
 }
 
 .chart-container {
