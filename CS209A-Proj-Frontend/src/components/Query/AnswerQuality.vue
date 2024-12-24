@@ -18,14 +18,14 @@
       </div>
 
       <div class="chart-container">
-        <div class="chart-item">
+        <div class="chart-item pie-chart">
           <div class="chart-title-container">
             <h2>答案质量分布</h2>
           </div>
           <PieChart :chartData="pieChartData" />
         </div>
 
-        <div class="chart-item">
+        <div class="chart-item heat-map">
           <div class="chart-title-container">
             <h2>答案质量相关性热力图</h2>
           </div>
@@ -251,8 +251,16 @@ h1 {
   margin-bottom: 200px;
 }
 
-.chart-item {
-  flex: 1 1 calc(30% - 20px);
+.chart-item.pie-chart {
+  flex: 1 1 calc(27% - 20px);
+  min-width: 300px;
+  max-width: 500px;
+  height: 400px;
+  box-sizing: border-box;
+}
+
+.chart-item.heat-map {
+  flex: 1 1 calc(33% - 20px);
   min-width: 300px;
   max-width: 500px;
   height: 400px;

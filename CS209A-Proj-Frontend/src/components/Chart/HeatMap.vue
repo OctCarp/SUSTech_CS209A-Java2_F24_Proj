@@ -47,11 +47,9 @@ const initChart = () => {
           data: props.labelData,
           axisLabel: {
             interval: 0,  // 强制显示所有标签
-            rotate: 30,
+            rotate: 40,
             fontSize: 10,
-          },
-          axisTick: {
-            alignWithLabel: true,  // 确保刻度线与标签对齐
+
           },
         },
         yAxis: {

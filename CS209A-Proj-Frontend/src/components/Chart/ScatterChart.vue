@@ -67,11 +67,11 @@ const initChart = () => {
           viewControl: {
             projection: 'perspective',
             panMouseButton: 'left',
-            zoomSensitivity: 5,
+            zoomSensitivity: 3,
             rotateSensitivity: 3,
             distance: 500,
             alpha: 10,
-            beta: 50,
+            beta: 120,
           },
         },
         xAxis3D: {
