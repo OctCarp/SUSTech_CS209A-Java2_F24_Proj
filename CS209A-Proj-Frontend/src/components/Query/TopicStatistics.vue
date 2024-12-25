@@ -14,7 +14,7 @@
               color="primary"
               @click="startDateDialog = true"
               class="date-picker"
-          ></v-text-field>
+          />
 
           <v-text-field
               v-model="endDateText"
@@ -25,7 +25,7 @@
               color="primary"
               @click="endDateDialog = true"
               class="date-picker"
-          ></v-text-field>
+          />
         </div>
 
         <div class="topic-input-container">
@@ -41,7 +41,7 @@
               item-props
               :no-data-text="'话题不存在'"
               class="input-topic"
-          ></v-autocomplete>
+          />
         </div>
       </div>
 
@@ -81,7 +81,8 @@
     </div>
 
     <v-dialog v-model="startDateDialog" max-width="290px">
-      <v-date-picker v-model="startDate" @input="startDateDialog = false" :max="endDate" color="primary"></v-date-picker>
+      <v-date-picker v-model="startDate" @input="startDateDialog = false" :max="endDate"
+                     color="primary"></v-date-picker>
     </v-dialog>
 
     <v-dialog v-model="endDateDialog" max-width="290px">
@@ -92,9 +93,9 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from 'vue';
+import {ref, onMounted, watch} from 'vue';
 import PieChart from "@/components/Chart/PieChart.vue";
-import { fetchTopicStatisticsData, fetchAllTopicName } from "@/services/api.js";
+import {fetchTopicStatisticsData, fetchAllTopicName} from "@/services/api.js";
 
 const topicName = ref("");
 const stats = ref({});
@@ -118,7 +119,7 @@ const fetchAllTopicNameData = async () => {
       topicOptions.value = response.map((item) => ({
         title: item.topicName,
       }))
-      .sort((a, b) => a.title.localeCompare(b.title));
+          .sort((a, b) => a.title.localeCompare(b.title));
     }
   } catch (error) {
     console.error("获取所有话题失败:", error);
@@ -162,23 +163,31 @@ const updateStats = () => {
     };
 
     pieChartData.value = [
-      { name: 'Questions', value: topicStatistics.questionCount },
-      { name: 'Answers', value: topicStatistics.answerCount },
-      { name: 'Comments', value: topicStatistics.commentCount },
+      {name: 'Questions', value: topicStatistics.questionCount},
+      {name: 'Answers', value: topicStatistics.answerCount},
+      {name: 'Comments', value: topicStatistics.commentCount},
     ];
   }
 };
 
 const formatLabel = (key) => {
   switch (key) {
-    case 'frequency': return '话题频率';
-    case 'totalPosts': return '帖子总数';
-    case 'questionCount': return '问题数';
-    case 'answerCount': return '回答数';
-    case 'commentCount': return '评论数';
-    case 'userCount': return '参与用户总数';
-    case 'totalViews': return '访问量';
-    default: return key;
+    case 'frequency':
+      return '话题频率';
+    case 'totalPosts':
+      return '帖子总数';
+    case 'questionCount':
+      return '问题数';
+    case 'answerCount':
+      return '回答数';
+    case 'commentCount':
+      return '评论数';
+    case 'userCount':
+      return '参与用户总数';
+    case 'totalViews':
+      return '访问量';
+    default:
+      return key;
   }
 };
 

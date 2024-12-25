@@ -15,7 +15,7 @@
 
       <v-text-field
           v-model="minReputation"
-          label="用户最低名誉值(默认为0)"
+          label="用户最低名誉值（默认为 0）"
           variant="outlined"
           clearable
           color="primary"
@@ -62,7 +62,7 @@ import { fetchTopTopicEngagementData } from "@/services/api.js";
 
 const numTopics = ref("");
 const minReputation = ref(0);
-const chartTitle = ref(`用户参与度最高的${numTopics.value}个话题`);
+const chartTitle = ref(`用户参与度最高的 ${numTopics.value} 个话题`);
 const xAxisLabel = ref('话题');
 const yAxisLabel = ref('用户参与度');
 const reputationErrorMessages = ref([]);
@@ -79,13 +79,13 @@ const options = [
 const validateReputation = () => {
   reputationErrorMessages.value = [];
   if (minReputation.value < 0) {
-    reputationErrorMessages.value.push('用户最低声望值不能低于0');
+    reputationErrorMessages.value.push('用户最低声望值不能低于 0');
   }
 };
 
 const fetchData = async () => {
   shouldUpdate.value = true;
-  chartTitle.value = `用户参与度最高的${numTopics.value}个话题`;
+  chartTitle.value = `用户参与度最高的 ${numTopics.value} 个话题`;
   try {
     const response = await fetchTopTopicEngagementData(numTopics.value, minReputation.value);
     if (Array.isArray(response)) {

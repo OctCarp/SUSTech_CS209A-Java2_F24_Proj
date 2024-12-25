@@ -52,9 +52,9 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import {ref} from 'vue';
 import BarChart from "@/components/Chart/BarChart.vue";
-import { fetchTopBugData } from "@/services/api.js";
+import {fetchTopBugData} from "@/services/api.js";
 
 const numBugs = ref('');
 const errorChartTitle = ref(`最高频的${numBugs.value}个错误`);
@@ -67,9 +67,9 @@ let errorData = ref([]);
 let exceptionData = ref([]);
 
 const options = [
-  { value: 5, label: '5个' },
-  { value: 10, label: '10个' },
-  { value: 15, label: '15个' },
+  {value: 5, label: '5个'},
+  {value: 10, label: '10个'},
+  {value: 15, label: '15个'},
 ];
 
 const fetchData = async () => {

@@ -15,7 +15,8 @@
           item-props
           :no-data-text="'错误/异常不存在'"
           class="input-topic"
-      ></v-autocomplete>
+          @focus="onBugSelectFocus"
+      />
 
       <v-btn @click="fetchData" :disabled="!bugName" size="large" color="primary" class="query-button">
         <v-icon icon="mdi-magnify"></v-icon>
@@ -67,6 +68,12 @@ const pieChartData = ref([]);
 const bugOptions = ref([]);
 let shouldUpdate = ref(false);
 let data = ref();
+
+const onBugSelectFocus = () => {
+  if (!bugOptions.value || bugOptions.value.length === 0){
+    fetchAllBugName();
+  }
+}
 
 const fetchAllBugNameData = async () => {
   try {

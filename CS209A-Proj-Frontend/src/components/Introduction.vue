@@ -3,7 +3,7 @@
     <div class="text">
       <h2 class="title">简介</h2>
       <p class="description">
-        StackOverflow是一个程序设计领域的问答网站，隶属Stack Exchange Network。本网站收集和分析StackOverflow网站上与Java相关的数据，并提供可视化的结果。
+        StackOverflow 是一个程序设计领域的问答网站，隶属 Stack Exchange Network。本页面收集和分析 StackOverflow 网站上与 Java 相关的数据，并提供可视化的结果。
       </p>
     </div>
 

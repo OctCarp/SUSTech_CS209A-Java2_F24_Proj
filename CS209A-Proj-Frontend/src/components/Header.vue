@@ -8,7 +8,7 @@
       <span class="title">Java 数据分析</span>
     </div>
 
-    <a href="https://github.com/OctCarp/SUSTech_CS209A-Java2_F24_Proj/" target="_blank" class="link">
+    <a href="https://github.com/OctCarp/SUSTech_CS209A-Java2_F24_Proj" target="_blank" class="link">
       <img src="@/assets/github-mark.svg" alt="Github Logo" class="github-logo" />
     </a>
   </header>
