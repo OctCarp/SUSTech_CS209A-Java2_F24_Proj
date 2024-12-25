@@ -26,7 +26,7 @@ class ImporterApplication(
         try {
             commonSqlService.disableAllTriggers()
 
-//            dataImportService.startImportStaticData()
+            dataImportService.startImportStaticData()
             dataAnalysisService.startAnalysis()
         } finally {
             commonSqlService.enableAllTriggers()
